@@ -2,7 +2,9 @@
 
 Static site that presents and tracks the Arandu project for the Applied AI Lab course (Laboratório de IA Aplicada), Master's in Software Engineering, UNIPAMPA. Author: Lucas de Medeiros Ferreira.
 
-Suggested repository name, following the course format `<COURSE>-<STUDENT>.github.io`: **`liaa-lucas.github.io`**.
+Repository, following the course format `<COURSE>-<STUDENT>.github.io`: **[lucasper/liaa-lucas-de-medeiros-ferreira.github.io](https://github.com/lucasper/liaa-lucas-de-medeiros-ferreira.github.io)**.
+
+Live site: **https://lucasper.github.io/liaa-lucas-de-medeiros-ferreira.github.io/**
 
 ## Files
 
@@ -17,12 +19,13 @@ No build step. Open `index.html` in a browser to preview.
 
 ## Publishing on GitHub Pages
 
-A repository named `<name>.github.io` is served at `https://<name>.github.io` only when `<name>` is the GitHub account or organization that owns it. Two options:
+The repository belongs to the personal account `lucasper`, so GitHub serves it as a project site under `https://lucasper.github.io/<repository-name>/`.
 
-1. Create an account or organization called `liaa-lucas` and a repository `liaa-lucas.github.io` inside it.
-2. Or create a repository `liaa-lucas.github.io` in your own account. It will be served at `https://<your-user>.github.io/liaa-lucas.github.io/`.
+1. Keep the files at the root of the `main` branch.
+2. Enable **Settings → Pages → Deploy from a branch → main / (root)**.
+3. Wait for the **pages build and deployment** workflow in the **Actions** tab to finish.
 
-Then push these files to the `main` branch and enable **Settings → Pages → Deploy from a branch → main / root**.
+For the shorter address `https://liaa-lucas-de-medeiros-ferreira.github.io`, transfer the repository to an organization with exactly that name.
 
 ## Updating the progress
 
@@ -30,4 +33,4 @@ Then push these files to the `main` branch and enable **Settings → Pages → D
 - Update the **Status** section and the date in the footer.
 - Keep the academic schedule (Roadmap section) unchanged unless the student changes it.
 
-Facts on the page come from `C:/Projects/Arandu` (README, HEAD `68bd0ed`, Nov 10, 2026) and the progress records in `AranduContext/Contexto`. Measurements are local and simulated. Real API calls, player and device runs are not validated yet.
+Facts on the page come from `C:/Projects/Arandu` (README, HEAD `68bd0ed`, Nov 10, 2026) and the progress records in `AranduContext/Contexto`. Measurements are local and simulated. The student reports having tested the real Gemini API in the ThroneRoom sample. Real Groq calls, player and device runs are not validated yet. Next steps: experiments on Gemini, Groq and one more API, with reports built from `ARANDU_DIAGNOSTICS` data.

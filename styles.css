@@ -347,6 +347,21 @@ code {
 .next-steps span { padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .2); font-size: .9rem; }
 .next-steps span:not(:last-child)::after { content: " →"; color: var(--gold); }
 .next p { color: #b9c5de; margin: 0; font-size: .95rem; }
+.next code { background: rgba(255, 255, 255, .12); color: #ffd98a; }
+.apis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 4px 0 18px; }
+.api { padding: 14px 16px; border-radius: 14px; background: rgba(20, 184, 166, .14); border: 1px solid rgba(20, 184, 166, .45); }
+.api:nth-child(2) { background: rgba(244, 185, 66, .12); border-color: rgba(244, 185, 66, .45); }
+.api b { display: block; font-family: var(--display); font-size: 1.1rem; }
+.api span { font-size: .85rem; color: #b9c5de; }
+.api-tbd { background: rgba(255, 255, 255, .05); border: 1.5px dashed rgba(255, 255, 255, .35); }
+.badge-live {
+  display: inline-block; margin: 0; padding: 6px 14px; border-radius: 999px; font-weight: 600; font-size: .92rem;
+  background: rgba(20, 184, 166, .18); border: 1px solid rgba(20, 184, 166, .55); color: #7af0e0;
+}
+.live-check { margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: #fff8e8; border-left: 4px solid var(--gold); }
+.live-check b { display: block; font-family: var(--display); color: var(--gold-d); }
+.live-check span { font-size: .85rem; color: var(--muted); }
+@media (max-width: 600px) { .apis { grid-template-columns: 1fr; } }
 
 /* ---------- Footer ---------- */
 .footer { background: #0d1730; color: #b9c5de; padding: 48px 0; font-size: .92rem; }

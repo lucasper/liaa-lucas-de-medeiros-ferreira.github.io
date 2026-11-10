@@ -242,6 +242,7 @@
       <p class="kicker kicker-gold">04 · Sample game</p>
       <h2>ThroneRoom: rule a kingdom with a scheming advisor</h2>
       <p class="sub">The sample shows the plugin inside a real gameplay loop. You are the Monarch for a 5-day reign. Each day brings one crisis, drawn from 20 authored crises, and an AI advisor who may not tell the whole truth.</p>
+      <p class="badge-live">✓ Tested with the real Gemini API</p>
     </header>
 
     <div class="throne">
@@ -374,12 +375,22 @@
           </ul>
         </details>
       </li>
+      <li class="tl reveal" data-cat="quality">
+        <div class="tl-date">Latest</div>
+        <details class="tl-card" open>
+          <summary><span class="pill p-quality">Quality</span><h3>Real Gemini test in ThroneRoom</h3></summary>
+          <ul>
+            <li>The student played the ThroneRoom sample with the real Gemini API.</li>
+            <li>First use of the plugin with a live model, beyond simulated responses.</li>
+          </ul>
+        </details>
+      </li>
       <li class="tl tl-next reveal" data-cat="quality">
         <div class="tl-date">Next</div>
         <div class="tl-card tl-card-next">
           <span class="pill p-next">Planned</span>
-          <h3>End-to-end demo with a real API</h3>
-          <p>A complete ThroneRoom request with a real model, recorded by debug mode. No new date set.</p>
+          <h3>Experiments and reports</h3>
+          <p>Run experiments on Groq, Gemini and one more API, and build reports from the <code>ARANDU_DIAGNOSTICS</code> data.</p>
         </div>
       </li>
     </ol>
@@ -408,21 +419,25 @@
         </ul>
       </div>
       <div class="status-col reveal">
-        <h3 class="st st-verified">Verified locally</h3>
-        <p class="st-desc">Latest records per area. Counts come from different selections and are not added up.</p>
+        <h3 class="st st-verified">Verified</h3>
+        <p class="st-desc">Latest local test records per area. Counts come from different selections and are not added up.</p>
         <div class="tests">
           <div><b>264</b><span>Edit Mode · plugin</span></div>
           <div><b>12</b><span>offline · Groq</span></div>
           <div><b>7</b><span>focused · debug mode</span></div>
           <div><b>18 / 34</b><span>Edit / Play · sample</span></div>
         </div>
+        <div class="live-check">
+          <b>Real API</b>
+          <span>Gemini tested by the student in the ThroneRoom sample.</span>
+        </div>
       </div>
       <div class="status-col reveal">
         <h3 class="st st-open">Not validated yet</h3>
         <p class="st-desc">Open points for the evaluation stage.</p>
         <ul class="opens">
-          <li>Real calls to the Gemini and Groq APIs</li>
-          <li>Quality of decisions and summaries</li>
+          <li>Real calls to the Groq API and a third API</li>
+          <li>Measured quality of decisions and summaries</li>
           <li>Real cost and service latency</li>
           <li>Player builds, IL2CPP and devices</li>
           <li>Durability after restart</li>
@@ -483,12 +498,17 @@
     </div>
 
     <div class="next reveal">
-      <div class="next-badge">Next demonstrable result</div>
-      <h3>A full ThroneRoom request with a real API, recorded by debug mode</h3>
+      <div class="next-badge">Next steps</div>
+      <h3>Experiments and reports built from <code>ARANDU_DIAGNOSTICS</code> data</h3>
       <div class="next-steps">
-        <span>Setup</span><span>Model response</span><span>Tool proposal</span><span>Receipt</span><span>Failure or cancellation</span>
+        <span>Run experiments</span><span>Capture with debug mode</span><span>Generate reports</span>
       </div>
-      <p>ThroneRoom uses Gemini, so real validation of Groq is a separate step.</p>
+      <div class="apis">
+        <div class="api"><b>Gemini</b><span>Already tested in ThroneRoom</span></div>
+        <div class="api"><b>Groq</b><span>Adapter ready, real test pending</span></div>
+        <div class="api api-tbd"><b>One more API</b><span>To be chosen</span></div>
+      </div>
+      <p>The same experiments will run on each API, so the reports can compare them.</p>
     </div>
   </div>
 </section>
