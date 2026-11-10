@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arandu · AI Agents for Unity</title>
+  <meta name="description" content="Arandu is a reusable Unity plugin for model-driven game agents. Project site for the Applied AI Lab course, Master's in Software Engineering, UNIPAMPA.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314213d'/%3E%3Cpath d='M32 12 50 52H40l-8-19-8 19H14z' fill='%23f4b942'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="topbar" id="top">
+  <a class="brand" href="#top" aria-label="Arandu home">
+    <span class="brand-mark" aria-hidden="true">A</span>
+    <span>Arandu</span>
+  </a>
+  <button class="menu-toggle" aria-expanded="false" aria-controls="nav" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="nav" class="nav">
+    <a href="#context">Context</a>
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#sample">Sample</a>
+    <a href="#progress">Progress</a>
+    <a href="#status">Status</a>
+    <a href="#roadmap">Roadmap</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Applied AI Lab · Master's in Software Engineering · UNIPAMPA</p>
+      <h1>Reusable AI agents<br>for <span class="grad">Unity games</span></h1>
+      <p class="lead">Arandu is a Unity plugin that lets developers plug language-model agents into a game without giving up control. <strong>The model proposes. The game decides.</strong></p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#solution">See how it works</a>
+        <a class="btn btn-ghost" href="#progress">Follow the progress</a>
+      </div>
+      <p class="author">Lucas de Medeiros Ferreira · 2nd semester of 2026</p>
+    </div>
+
+    <div class="hero-card" aria-label="Request flow animation">
+      <div class="flow-head">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="flow-title">one agent request</span>
+      </div>
+      <ol class="flow-steps">
+        <li><span class="tag tag-game">Game</span> asks the advisor for help with a crisis</li>
+        <li><span class="tag tag-arandu">Arandu</span> builds the request: agent, skill, authorized context</li>
+        <li><span class="tag tag-model">Model</span> answers and <em>proposes</em> a tool call</li>
+        <li><span class="tag tag-game">Game</span> validates the proposal and applies the effect</li>
+        <li><span class="tag tag-arandu">Arandu</span> returns the result and a receipt of known effects</li>
+      </ol>
+      <p class="flow-note">Illustrative flow, based on the plugin architecture.</p>
+    </div>
+  </div>
+
+  <div class="wrap stats">
+    <div class="stat"><b>4</b><span>plugin assemblies<br>Core · ModelAdapter · Integration · Editor</span></div>
+    <div class="stat"><b>2</b><span>example adapters<br>Gemini and Groq</span></div>
+    <div class="stat"><b>1</b><span>playable sample<br>ThroneRoom</span></div>
+    <div class="stat"><b>264</b><span>Edit Mode tests passing<br>latest plugin record, Nov 10</span></div>
+  </div>
+</section>
+
+<!-- ============ CONTEXT ============ -->
+<section id="context" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker">01 · Context</p>
+      <h2>Language models are reaching game worlds</h2>
+      <p class="sub">Characters that talk back, advisors that reason about the game state, quests that react to the player. Large language models make this possible, but a game is a strict, real-time system with rules it cannot break.</p>
+    </header>
+
+    <div class="grid-3">
+      <article class="card reveal">
+        <div class="icon ic-teal" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 5h16v10H8l-4 4z" /></svg>
+        </div>
+        <h3>New kinds of gameplay</h3>
+        <p>Model-driven agents can hold conversations, explain choices and suggest actions inside the game, instead of following fixed dialogue trees.</p>
+      </article>
+      <article class="card reveal">
+        <div class="icon ic-gold" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3 21 8v8l-9 5-9-5V8z" /><path d="M3 8l9 5 9-5M12 13v8" /></svg>
+        </div>
+        <h3>Unity as the platform</h3>
+        <p>Arandu targets Unity 6 (6000.3.16f1). The plugin lives in C# assemblies that any Unity project can reference.</p>
+      </article>
+      <article class="card reveal">
+        <div class="icon ic-coral" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></svg>
+        </div>
+        <h3>A research pivot</h3>
+        <p>The project started as a latency comparison of LLMs. It moved to a broader goal: reusable infrastructure for agents in Unity games.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section id="problem" class="section section-tint">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker">02 · Problem</p>
+      <h2>Connecting a model to a game is easy. Doing it safely is not.</h2>
+      <p class="sub">A quick integration usually calls a provider API straight from gameplay code. That works for a demo, but it creates problems that grow with the project.</p>
+    </header>
+
+    <div class="problems">
+      <article class="problem reveal">
+        <span class="pnum">P1</span>
+        <h3>Provider lock-in</h3>
+        <p>HTTP calls, JSON formats and model quirks end up mixed with gameplay. Switching provider or model means rewriting game code.</p>
+      </article>
+      <article class="problem reveal">
+        <span class="pnum">P2</span>
+        <h3>Unsafe effects</h3>
+        <p>If the model can change the game state directly, a wrong or invented answer can break rules, spend resources or corrupt progress.</p>
+      </article>
+      <article class="problem reveal">
+        <span class="pnum">P3</span>
+        <h3>No limits</h3>
+        <p>Without explicit budgets, a request can loop on tool calls, grow its context or take too long. Time, calls, context and cost need bounds.</p>
+      </article>
+      <article class="problem reveal">
+        <span class="pnum">P4</span>
+        <h3>Hard to inspect</h3>
+        <p>When something fails, developers need to know what was asked, what the model proposed, what was applied and why it stopped.</p>
+      </article>
+    </div>
+
+    <blockquote class="question reveal">
+      <span>Guiding question</span>
+      How can a Unity game use model-driven agents in a way that is <b>reusable</b>, <b>bounded</b> and <b>inspectable</b>, while the game keeps full authority over its own state?
+    </blockquote>
+  </div>
+</section>
+
+<!-- ============ SOLUTION ============ -->
+<section id="solution" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker">03 · Proposed solution</p>
+      <h2>A plugin that separates orchestration, providers and gameplay</h2>
+      <p class="sub">Arandu coordinates a finite request between the game and a model. Game services stay in charge: they validate and apply every action the model proposes.</p>
+    </header>
+
+    <!-- Loop diagram -->
+    <div class="loop reveal" role="img" aria-label="Agent loop: game request, agent with skill and context, model response or tool proposal, registered tool with game authority, observation, then next turn or result">
+      <div class="node n-game"><small>1</small>Game request</div>
+      <div class="arrow">→</div>
+      <div class="node n-arandu"><small>2</small>Agent + skill + context</div>
+      <div class="arrow">→</div>
+      <div class="node n-model"><small>3</small>Model response or tool proposal</div>
+      <div class="arrow">→</div>
+      <div class="node n-game"><small>4</small>Registered tool + game authority</div>
+      <div class="arrow">→</div>
+      <div class="node n-arandu"><small>5</small>Observation → next turn or result</div>
+    </div>
+    <p class="caption">The model proposes. Authoritative game code decides. Cancellation cannot undo an action already applied.</p>
+
+    <!-- Architecture -->
+    <div class="arch reveal">
+      <div class="arch-col">
+        <h3 class="arch-title">Plugin foundation</h3>
+        <div class="module m-core">
+          <b>Arandu.Core</b>
+          <span>Portable agent runtime: requests, sessions, limits, tool loop, results and receipts.</span>
+        </div>
+        <div class="module m-adapter">
+          <b>Arandu.ModelAdapter</b>
+          <span>Shared base to connect any model backend. No HTTP or vendor SDK dependency.</span>
+        </div>
+        <div class="module m-integration">
+          <b>Arandu.Integration</b>
+          <span>Unity bridge: Inspector setup, C# tool and skill registration, scoped lifetimes.</span>
+        </div>
+        <div class="module m-editor">
+          <b>Arandu.Editor</b>
+          <span>Editor-only monitor to validate configuration and inspect requests and receipts.</span>
+        </div>
+      </div>
+      <div class="arch-col">
+        <h3 class="arch-title">Built on top, kept separate</h3>
+        <div class="module m-example">
+          <b>ExampleAdapters / Gemini</b>
+          <span>Model selection, bounded paginated model discovery and stateless Interactions.</span>
+        </div>
+        <div class="module m-example">
+          <b>ExampleAdapters / Groq</b>
+          <span>Chat Completions and model listing, with a GPT-OSS 120B profile.</span>
+        </div>
+        <div class="module m-sample">
+          <b>Samples / ThroneRoom</b>
+          <span>First standalone gameplay sample, built with a six-module sample architecture.</span>
+        </div>
+        <p class="arch-note">The foundation never depends on the examples. Developers can write their own adapter for an embedded engine, a local service or any external API.</p>
+      </div>
+    </div>
+
+    <!-- Concepts -->
+    <h3 class="minor-title reveal">Core concepts</h3>
+    <div class="concepts reveal">
+      <button class="concept active" data-key="agent">Agent</button>
+      <button class="concept" data-key="session">Session</button>
+      <button class="concept" data-key="skill">Skill</button>
+      <button class="concept" data-key="tool">Tool</button>
+      <button class="concept" data-key="context">Context</button>
+      <button class="concept" data-key="adapter">Adapter</button>
+    </div>
+    <div class="concept-panel reveal" id="concept-panel" aria-live="polite">
+      <h4>Agent</h4>
+      <p>An agent has its own configuration and permissions. Several independent agents can run in the same game, each with separate sessions.</p>
+    </div>
+
+    <!-- Features -->
+    <h3 class="minor-title reveal">What keeps it bounded and inspectable</h3>
+    <div class="grid-4">
+      <div class="feat reveal"><h4>Explicit limits</h4><p>Time, calls, context and cost budgets per request. Skills can narrow them further.</p></div>
+      <div class="feat reveal"><h4>Context compaction</h4><p>On by default. Fits the complete request into the budget of the selected model.</p></div>
+      <div class="feat reveal"><h4>Retry pacing</h4><p>Fixed retry by default, with opt-in backoff, jitter and support for <code>Retry-After</code>.</p></div>
+      <div class="feat reveal"><h4>Debug mode</h4><p>Separate diagnostic build with request timing, failure reports and file capture.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SAMPLE ============ -->
+<section id="sample" class="section section-dark">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker kicker-gold">04 · Sample game</p>
+      <h2>ThroneRoom: rule a kingdom with a scheming advisor</h2>
+      <p class="sub">The sample shows the plugin inside a real gameplay loop. You are the Monarch for a 5-day reign. Each day brings one crisis, drawn from 20 authored crises, and an AI advisor who may not tell the whole truth.</p>
+    </header>
+
+    <div class="throne">
+      <div class="throne-steps reveal">
+        <div class="tstep">
+          <span class="tday">Opening counsel</span>
+          <p>Grand Vizier Malakor presents the petition with a biased framing and proposes a Royal Edict draft through a tool.</p>
+        </div>
+        <div class="tstep">
+          <span class="tday">Send royal scouts</span>
+          <p>Pay gold to reveal verified facts. The context changes, the skill switches, and Malakor proposes an honest remedy.</p>
+        </div>
+        <div class="tstep">
+          <span class="tday">Audience chamber</span>
+          <p>Question the Vizier in free chat. From day two he can also read the history of the reign.</p>
+        </div>
+        <div class="tstep">
+          <span class="tday">Your decision</span>
+          <p><b>Sign</b> the edict, <b>veto</b> the draft or <b>ignore</b> the crisis. The game applies the costs and effects, never the model.</p>
+        </div>
+      </div>
+
+      <div class="kingdom reveal" aria-label="Starting resources of the kingdom">
+        <h3>Starting kingdom</h3>
+        <div class="gold"><span>Royal Treasury</span><b>300 gold</b></div>
+        <div class="pillar"><span>Commoner happiness</span><div class="bar"><i style="--v:50%"></i></div><em>50</em></div>
+        <div class="pillar"><span>Noble loyalty</span><div class="bar"><i style="--v:50%"></i></div><em>50</em></div>
+        <div class="pillar"><span>Military strength</span><div class="bar"><i style="--v:50%"></i></div><em>50</em></div>
+        <p class="rule">Any pillar at 0 ends the reign. Survive day 5 with all three above 0 to win.</p>
+        <p class="rule faint">Values from the sample rules. Panel is an illustration, not a screenshot.</p>
+      </div>
+    </div>
+
+    <div class="safety reveal">
+      <div><b>Key in memory only</b><span>The API key is never saved to PlayerPrefs, assets or logs.</span></div>
+      <div><b>Verified models only</b><span>Models without a verified profile show as <code>[Unavailable]</code>.</span></div>
+      <div><b>Bounded receipts</b><span>Edict receipts are capped at 256 and closed days refuse late deliveries.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRESS ============ -->
+<section id="progress" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker">05 · Progress</p>
+      <h2>How the project evolved during the semester</h2>
+      <p class="sub">Each entry matches a progress update presented in class. Click a card to see what changed.</p>
+    </header>
+
+    <div class="filters reveal" role="group" aria-label="Filter timeline">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="design">Design</button>
+      <button class="chip" data-filter="build">Implementation</button>
+      <button class="chip" data-filter="quality">Quality</button>
+    </div>
+
+    <ol class="timeline">
+      <li class="tl reveal" data-cat="design">
+        <div class="tl-date">Oct 6</div>
+        <details class="tl-card">
+          <summary><span class="pill p-design">Design</span><h3>Context engineering and project setup</h3></summary>
+          <ul>
+            <li>Unity project and repository set up.</li>
+            <li>Architecture, decisions, rules, state and planning documents written for context engineering.</li>
+            <li>Plugin split into exactly four assemblies: Core, ModelAdapter, Integration and Editor.</li>
+            <li>No plugin code yet: documentation was the deliverable of this step.</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="build">
+        <div class="tl-date">Oct 13</div>
+        <details class="tl-card">
+          <summary><span class="pill p-build">Implementation</span><h3>First Core runtime</h3></summary>
+          <ul>
+            <li><code>Arandu.Core</code> became the first implemented assembly.</li>
+            <li>Agent registration, request submission and the model/tool loop.</li>
+            <li>Offline harness with scripted replies: a mutation test turns a balance of 100 into 90.</li>
+            <li>74 test methods passed in a local portable runner (Oct 12).</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="build">
+        <div class="tl-date">Oct 20</div>
+        <details class="tl-card">
+          <summary><span class="pill p-build">Implementation</span><h3>Model adapter, Gemini and Unity integration</h3></summary>
+          <ul>
+            <li>ModelAdapter with the Gemini API, and the Integration module for Unity.</li>
+            <li>Minimal Editor tooling available.</li>
+            <li>110 unique Edit Mode tests and 14 Play Mode scenarios passed, with simulated responses.</li>
+            <li>Managed code compiled for Windows and Android.</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="build">
+        <div class="tl-date">Oct 27</div>
+        <details class="tl-card">
+          <summary><span class="pill p-build">Implementation</span><h3>ThroneRoom sample and context management</h3></summary>
+          <ul>
+            <li>ThroneRoom playable sample added.</li>
+            <li>Context compaction, bounded summaries, daily sessions and reign history.</li>
+            <li>Interface improvements in the sample.</li>
+            <li>Plugin: 204 Edit Mode and 22 Play Mode tests passed (Oct 24). Sample: 16 and 22 (Oct 25).</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="quality">
+        <div class="tl-date">Nov 3</div>
+        <details class="tl-card">
+          <summary><span class="pill p-quality">Quality</span><h3>Execution refinement</h3></summary>
+          <ul>
+            <li>Dispatcher moved out of the queue lock.</li>
+            <li>Per-agent counters in the scheduler.</li>
+            <li>More robust host state and shutdown.</li>
+            <li>212 Edit Mode and 39 Integration Play Mode tests passed (Nov 2).</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="quality">
+        <div class="tl-date">Nov 10</div>
+        <details class="tl-card" open>
+          <summary><span class="pill p-quality">Quality</span><h3>Debug mode, Groq adapter and improvements</h3></summary>
+          <ul>
+            <li><b>Debug mode</b>, compiled only with <code>ARANDU_DIAGNOSTICS</code>: bounded JSON report and continuous JSON Lines capture.</li>
+            <li><b>Groq adapter</b> for Chat Completions and model listing, with a GPT-OSS 120B profile.</li>
+            <li>Opt-in retry backoff with cap and jitter; fewer operation journal scans.</li>
+            <li>Paginated Gemini model discovery; safer ThroneRoom setup.</li>
+            <li>Local performance baseline with acceptance criteria; Gemini moved to <code>ExampleAdapters</code>.</li>
+            <li>11 commits from Nov 4 to Nov 10. Latest record: 264 Edit Mode tests.</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl tl-next reveal" data-cat="quality">
+        <div class="tl-date">Next</div>
+        <div class="tl-card tl-card-next">
+          <span class="pill p-next">Planned</span>
+          <h3>End-to-end demo with a real API</h3>
+          <p>A complete ThroneRoom request with a real model, recorded by debug mode. No new date set.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ STATUS ============ -->
+<section id="status" class="section section-tint">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker">06 · Current status</p>
+      <h2>What is done, what is measured, what is still open</h2>
+      <p class="sub">Snapshot from November 10, 2026. Implemented work is kept apart from verified results and from what still needs validation.</p>
+    </header>
+
+    <div class="status-grid">
+      <div class="status-col reveal">
+        <h3 class="st st-done">Implemented</h3>
+        <p class="st-desc">Accepted by the student as developer.</p>
+        <ul class="checks">
+          <li>Core, ModelAdapter, Integration and Editor</li>
+          <li>Gemini and Groq example adapters</li>
+          <li>ThroneRoom sample</li>
+          <li>Debug mode behind a build symbol</li>
+          <li>Opt-in retry backoff and journal optimization</li>
+        </ul>
+      </div>
+      <div class="status-col reveal">
+        <h3 class="st st-verified">Verified locally</h3>
+        <p class="st-desc">Latest records per area. Counts come from different selections and are not added up.</p>
+        <div class="tests">
+          <div><b>264</b><span>Edit Mode · plugin</span></div>
+          <div><b>12</b><span>offline · Groq</span></div>
+          <div><b>7</b><span>focused · debug mode</span></div>
+          <div><b>18 / 34</b><span>Edit / Play · sample</span></div>
+        </div>
+      </div>
+      <div class="status-col reveal">
+        <h3 class="st st-open">Not validated yet</h3>
+        <p class="st-desc">Open points for the evaluation stage.</p>
+        <ul class="opens">
+          <li>Real calls to the Gemini and Groq APIs</li>
+          <li>Quality of decisions and summaries</li>
+          <li>Real cost and service latency</li>
+          <li>Player builds, IL2CPP and devices</li>
+          <li>Durability after restart</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="minor-title reveal">Local measurements</h3>
+    <p class="note reveal">Measured on a local machine with simulated failures and a fake HTTP server. They describe the plugin's own behavior, not real API latency.</p>
+    <div class="measures">
+      <div class="measure reveal">
+        <h4>Retry backoff</h4>
+        <p class="m-ctx">32 agents, failures up to 250 ms</p>
+        <div class="mbar">
+          <span>Total attempts</span>
+          <div class="mrow"><em>fixed</em><div class="track"><i class="old" style="--w:100%"></i></div><b>128</b></div>
+          <div class="mrow"><em>backoff</em><div class="track"><i class="new" style="--w:50%"></i></div><b>64</b></div>
+        </div>
+        <div class="mbar">
+          <span>Peak attempts in 100 ms</span>
+          <div class="mrow"><em>fixed</em><div class="track"><i class="old" style="--w:100%"></i></div><b>32</b></div>
+          <div class="mrow"><em>backoff</em><div class="track"><i class="new" style="--w:37.5%"></i></div><b>12</b></div>
+        </div>
+        <p class="tradeoff">Trade-off: the slowest request goes from 340 to 1,018 ms of logical time.</p>
+      </div>
+      <div class="measure reveal">
+        <h4>Operation journal scans</h4>
+        <p class="m-ctx">Unity Editor, 2,048 records, half unresolved</p>
+        <table class="mtable">
+          <thead><tr><th>Scenario</th><th>Before</th><th>After</th></tr></thead>
+          <tbody>
+            <tr><td>No expirations</td><td>106.452 µs</td><td>0.022 µs</td></tr>
+            <tr><td>Spaced expirations</td><td>213.650 µs</td><td>93.100 µs</td></tr>
+            <tr><td>Burst</td><td>247.600 µs</td><td>97.200 µs</td></tr>
+          </tbody>
+        </table>
+        <p class="tradeoff">Medians. About 32 KiB of extra memory at the measured peak.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker">07 · Roadmap</p>
+      <h2>Academic schedule</h2>
+      <p class="sub">The five milestones of the course plan. W means week of the month.</p>
+    </header>
+
+    <div class="milestones">
+      <div class="ms reveal"><span class="ms-when">SEP W4</span><h3>Base architecture</h3><p>Detailed architecture definition</p></div>
+      <div class="ms reveal"><span class="ms-when">OCT W3</span><h3>Agent runtime</h3><p>Agentic loop, tools/skills and API integration</p></div>
+      <div class="ms reveal"><span class="ms-when">NOV W1</span><h3>Plugin v0.0.1</h3><p>Runtime integration and sample scene</p></div>
+      <div class="ms reveal"><span class="ms-when">NOV W3</span><h3>Refinement</h3><p>Logs, errors, timeouts and tests</p></div>
+      <div class="ms reveal"><span class="ms-when">NOV W4</span><h3>Evaluation</h3><p>Experiments, demonstration and report</p></div>
+    </div>
+
+    <div class="next reveal">
+      <div class="next-badge">Next demonstrable result</div>
+      <h3>A full ThroneRoom request with a real API, recorded by debug mode</h3>
+      <div class="next-steps">
+        <span>Setup</span><span>Model response</span><span>Tool proposal</span><span>Receipt</span><span>Failure or cancellation</span>
+      </div>
+      <p>ThroneRoom uses Gemini, so real validation of Groq is a separate step.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div>
+      <div class="brand brand-foot"><span class="brand-mark" aria-hidden="true">A</span><span>Arandu</span></div>
+      <p>Reusable, bounded and inspectable AI agents for Unity games.</p>
+    </div>
+    <div>
+      <p><b>Lucas de Medeiros Ferreira</b><br>Applied AI Lab (Laboratório de IA Aplicada)<br>Master's in Software Engineering · UNIPAMPA</p>
+    </div>
+    <div>
+      <p class="faint">Last updated: November 10, 2026.<br>Facts from the project repository and the weekly progress records.</p>
+      <a class="totop" href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
