@@ -1,4 +1,22 @@
-# Arandu project website · V3
+# Arandu project website · V4
+
+**V4 (November 22, 2026)** is a copy of V3 with a new **Trailer** section right below the hero (after the tag strip), playing the 90-second English trailer. The earlier versions stay in [`../WebSite`](../WebSite/README.md), [`../WebSite_V2`](../WebSite_V2/README.md) and [`../WebSite_V3`](../WebSite_V3/README.md).
+
+Changes from V3:
+
+- New `#trailer` section, a "Trailer" link in the nav and a "Watch the trailer" button in the hero; the scroll cue now points to the trailer.
+- `assets/arandu-trailer-en.mp4` (H.264/AAC, 1080p30, 90 s, web-optimized with fast start, about 14 MB) and `assets/arandu-trailer-poster.jpg`. Source: `C:/Projects/AI/TrailerProject` (`AranduTrailerEN`).
+- Text fixes requested by the student: the hero and Problem section now say Arandu makes it **easy** to add AI agents (adding one is hard), the Context section defines an AI agent, the Samples section explains what a sample is before describing them ("ready to open and test"), and ThroneRoom's advisor "tries to fool you".
+- Real API status updated with the student's report (Nov 22): ThroneRoom was played and tested with both the real **Gemini and Groq** APIs. The Status, badges and Next steps no longer list Groq as pending; a third API is still open. Dated timeline entries were kept as they were.
+- Trailer styles appended at the end of `styles.css`; `script.js` is unchanged.
+
+To publish V4, replace the repository root files with the files from this folder, including `assets/`.
+
+The text below describes V3 and V2 and still applies.
+
+---
+
+## V3 notes
 
 **V3 (November 17, 2026)** is a copy of V2 without the perpetual left-to-right "wave" animations, at the student's request. Removed: the light streak along the top of each section, the shine on kicker and number badges, the shimmer on stat, test and commit tiles, the shine on the kingdom bars, the scan across the commit chart, the sweep in the guiding question, the pulse travelling along the agent loop and the moving footer gradient (now static). The second ticker row now moves in the same direction as the first. Content, `index.html` and `script.js` are the same as V2; only `styles.css` changed. V2 stays in [`../WebSite_V2`](../WebSite_V2/README.md).
 

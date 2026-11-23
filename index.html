@@ -28,6 +28,7 @@
     <span></span><span></span><span></span>
   </button>
   <nav id="nav" class="nav">
+    <a href="#trailer">Trailer</a>
     <a href="#context">Context</a>
     <a href="#problem">Problem</a>
     <a href="#solution">Solution</a>
@@ -48,10 +49,11 @@
     <div class="hero-copy">
       <p class="eyebrow anim-in" style="--d:0">Applied AI Lab · Master's in Software Engineering · UNIPAMPA</p>
       <h1 class="anim-in" style="--d:1">Reusable AI agents<br>for <span class="grad glitch" data-text="Unity games">Unity games</span></h1>
-      <p class="lead anim-in" style="--d:2">Arandu is a Unity plugin that lets developers plug language-model agents into a game without giving up control.</p>
+      <p class="lead anim-in" style="--d:2">Arandu is a Unity plugin that makes it easy to add AI agents to a game, while the game stays in control.</p>
       <p class="motto anim-in" style="--d:3"><span class="typed" data-words="The model proposes.|The game decides.|Every request is bounded.|Every effect has a receipt."></span><span class="caret" aria-hidden="true"></span></p>
       <div class="hero-cta anim-in" style="--d:4">
-        <a class="btn btn-primary magnetic" href="#solution"><span>See how it works</span></a>
+        <a class="btn btn-primary magnetic" href="#trailer"><span>Watch the trailer</span></a>
+        <a class="btn btn-ghost magnetic" href="#solution"><span>See how it works</span></a>
         <a class="btn btn-ghost magnetic" href="#whatsnew"><span>What's new this week</span></a>
       </div>
       <p class="author anim-in" style="--d:5">Lucas de Medeiros Ferreira · 2nd semester of 2026</p>
@@ -81,7 +83,7 @@
     <div class="stat reveal"><b data-count="322">0</b><span>Edit Mode tests passing<br>latest plugin record, Nov 16</span></div>
   </div>
 
-  <a class="scroll-cue" href="#context" aria-label="Scroll to content"><span></span></a>
+  <a class="scroll-cue" href="#trailer" aria-label="Scroll to content"><span></span></a>
 </section>
 
 <div class="marquee" aria-hidden="true">
@@ -95,13 +97,32 @@
   </div>
 </div>
 
+<!-- ============ TRAILER ============ -->
+<section id="trailer" class="section trailer-section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>▶</span> Trailer</p>
+      <h2>Arandu in 90 seconds</h2>
+      <p class="sub">What AI agents are, why adding one to a game is hard, and how Arandu makes it easy. Then a quick look at its parts, the two samples and the progress so far.</p>
+    </header>
+
+    <div class="trailer-frame reveal">
+      <video class="trailer-video" controls preload="metadata" playsinline poster="assets/arandu-trailer-poster.jpg">
+        <source src="assets/arandu-trailer-en.mp4" type="video/mp4">
+        Your browser cannot play this video. <a href="assets/arandu-trailer-en.mp4">Download the trailer (MP4)</a>.
+      </video>
+    </div>
+    <p class="caption reveal">English narration with subtitles. Video made with Remotion; narration generated locally with Chatterbox TTS.</p>
+  </div>
+</section>
+
 <!-- ============ CONTEXT ============ -->
 <section id="context" class="section">
   <div class="wrap">
     <header class="section-head reveal">
       <p class="kicker"><span>01</span> Context</p>
       <h2>Language models are reaching game worlds</h2>
-      <p class="sub">Characters that talk back, advisors that reason about the game state, quests that react to the player. Large language models make this possible, but a game is a strict, real-time system with rules it cannot break.</p>
+      <p class="sub">Characters that talk back, advisors that reason about the game state, quests that react to the player. Large language models make this possible. A model that can talk, reason and act inside a game is called an <b>AI agent</b>.</p>
     </header>
 
     <div class="grid-3 stagger">
@@ -129,8 +150,8 @@
   <div class="wrap">
     <header class="section-head reveal">
       <p class="kicker"><span>02</span> Problem</p>
-      <h2>Connecting a model to a game is easy. Doing it safely is not.</h2>
-      <p class="sub">A quick integration usually calls a provider API straight from gameplay code. That works for a demo, but it creates problems that grow with the project.</p>
+      <h2>Adding an AI agent to a game is hard</h2>
+      <p class="sub">You have to connect a model provider, feed it the game's state and handle every answer it gives. A quick integration that calls a provider API straight from gameplay code works for a demo, but its problems grow with the project.</p>
     </header>
 
     <div class="problems stagger">
@@ -229,8 +250,8 @@
   <div class="wrap">
     <header class="section-head reveal">
       <p class="kicker"><span>04</span> Samples</p>
-      <h2>Two samples: one to play, one to measure</h2>
-      <p class="sub">ThroneRoom shows the plugin inside a real gameplay loop. AdapterBenchmark runs the same scenarios on each model and exports the results.</p>
+      <h2>Two samples, ready to open and test</h2>
+      <p class="sub">A <b>sample</b> is a small example project that ships with the plugin, ready to open and test. ThroneRoom shows the plugin inside a real gameplay loop. AdapterBenchmark runs the same scenarios on each model and exports the results.</p>
     </header>
 
     <div class="sample-tabs reveal" role="tablist">
@@ -243,9 +264,9 @@
     <div class="spanel active" id="tab-throne">
       <div class="throne-head">
         <h3>Rule a kingdom with a scheming advisor</h3>
-        <p>You are the Monarch for a 5-day reign. Each day brings one crisis, drawn from 20 authored crises, and an AI advisor who may not tell the whole truth.</p>
+        <p>You are the Monarch for a 5-day reign. Each day brings one crisis, drawn from 20 authored crises, and an AI advisor who tries to fool you.</p>
         <div class="badges">
-          <span class="badge badge-ok">✓ Tested by the student with the real Gemini API</span>
+          <span class="badge badge-ok">✓ Played and tested by the student with the real Gemini and Groq APIs</span>
           <span class="badge">Gemini or Groq, chosen in the setup screen</span>
         </div>
       </div>
@@ -525,7 +546,7 @@
     <header class="section-head reveal">
       <p class="kicker"><span>07</span> Current status</p>
       <h2>What is done, what is measured, what is still open</h2>
-      <p class="sub">Snapshot from November 16, 2026. Implemented work is kept apart from verified results and from what still needs validation.</p>
+      <p class="sub">Snapshot from November 16, 2026, with the real API tests reported by the student up to November 22. Implemented work is kept apart from verified results and from what still needs validation.</p>
     </header>
 
     <div class="status-grid stagger">
@@ -554,14 +575,14 @@
         </div>
         <div class="live-check">
           <b>Real API</b>
-          <span>Gemini tested by the student in the ThroneRoom sample.</span>
+          <span>Gemini and Groq played and tested by the student.</span>
         </div>
       </div>
       <div class="status-col spot reveal">
         <h3 class="st st-open">Not validated yet</h3>
         <p class="st-desc">Open points for the evaluation stage.</p>
         <ul class="opens">
-          <li>Real calls to the Groq API and a third API</li>
+          <li>Real calls to a third API</li>
           <li>A live AdapterBenchmark run</li>
           <li>Measured quality of decisions and summaries</li>
           <li>Real cost and service latency</li>
@@ -631,8 +652,8 @@
         <span>Run AdapterBenchmark</span><span>Capture with debug mode</span><span>Generate reports</span>
       </div>
       <div class="apis">
-        <div class="api"><b>Gemini</b><span>Already tested in ThroneRoom</span></div>
-        <div class="api"><b>Groq</b><span>In ThroneRoom and the benchmark, real test pending</span></div>
+        <div class="api"><b>Gemini</b><span>Already played and tested in ThroneRoom</span></div>
+        <div class="api"><b>Groq</b><span>Already played and tested</span></div>
         <div class="api api-tbd"><b>One more API</b><span>To be chosen</span></div>
       </div>
       <p>The same scenarios will run on each API, so the reports can compare them.</p>
@@ -652,7 +673,7 @@
       <p><b>Lucas de Medeiros Ferreira</b><br>Applied AI Lab (Laboratório de IA Aplicada)<br>Master's in Software Engineering · UNIPAMPA</p>
     </div>
     <div>
-      <p class="faint">Last updated: November 17, 2026.<br>Facts from the project repository (HEAD <code>194ab29</code>, Nov 16) and the weekly progress records.</p>
+      <p class="faint">Last updated: November 22, 2026.<br>Facts from the project repository (HEAD <code>194ab29</code>, Nov 16) and the weekly progress records.</p>
       <a class="totop" href="#top">Back to top ↑</a>
     </div>
   </div>
