@@ -4,6 +4,10 @@
 document.documentElement.classList.add("js");
 const finePointer = window.matchMedia("(pointer: fine)").matches;
 const small = () => window.innerWidth < 760;
+// V6 language: benchmark.pt-br.html loads this same script with <html lang="pt-BR">.
+const LANG = document.documentElement.lang.toLowerCase().startsWith("pt") ? "pt" : "en";
+const tr = (en, pt) => (LANG === "pt" ? pt : en);
+const LOCALE = tr("en-US", "pt-BR");
 
 /* =================================================================
    Data access
@@ -19,9 +23,21 @@ const MC = [0, 1, 2].map((i) => css.getPropertyValue(`--m${i}`).trim());
 const MN = ["Gemini 3.5 Flash Lite", "GPT-OSS 120B", "GPT-OSS 20B"];
 const MS = ["Gemini", "GPT-OSS 120B", "GPT-OSS 20B"];
 const PH = ["--ph-local", "--ph-net", "--ph-prov", "--ph-retry"].map((v) => css.getPropertyValue(v).trim());
-const PHN = ["Arandu & Unity", "Network & front end", "Provider processing", "Rate-limit wait"];
+const PHN = tr(["Arandu & Unity", "Network & front end", "Provider processing", "Rate-limit wait"],
+  ["Arandu e Unity", "Rede e front end", "Processamento do provedor", "Espera de rate limit"]);
 const INK = "#ece9ff", MUTED = "#a7a3cc", FAINT = "#7d79a8";
-const SCEN_TXT = {
+const SCEN_TXT = LANG === "pt" ? {
+  PlainText: ["Prompt curto", "“Cite um benefício dos testes automatizados.” Uma resposta curta.", 1],
+  LongInput: ["Documento longo", "Um documento de 96 seções (cerca de 3,5K tokens) e a pergunta: qual é a última seção?", 1],
+  StructuredOutput: ["Resposta em JSON", "A resposta precisa seguir um JSON schema com uma resposta e uma confiança.", 1],
+  SingleReadTool: ["Uma tool call", "Usar a tool de consulta para ler o valor da chave alpha (7) e informá-lo.", 1],
+  ToolChain: ["Cadeia de tools", "Consultar alpha, beta e gamma, uma por vez, e depois dar a soma (31).", 1],
+  MutationTool: ["Mudar o estado do jogo", "Somar 3 a um contador com a tool de contador. Exige um receipt e uma re-checagem.", 1],
+  SkillSwitch: ["Troca de Skill", "Descrever um pôr do sol com uma Skill concisa e depois com uma Skill detalhada.", 2],
+  ContextPressure: ["Conversa longa", "Sete mensagens grandes numa só Session, com os resumos de context ativados.", 7],
+  MultiTurnSession: ["Memória", "Guardar uma palavra-código, responder 2 + 2 e depois lembrar a palavra-código.", 3],
+  Cancellation: ["Cancelamento", "Pedir uma redação de 400 palavras e cancelá-la depois de 800 ms.", 1],
+} : {
   PlainText: ["Short prompt", "“Name one benefit of automated testing.” One short answer.", 1],
   LongInput: ["Long document", "A 96-section document (about 3.5K tokens) and the question: which section is last?", 1],
   StructuredOutput: ["JSON answer", "The answer must follow a JSON schema with an answer and a confidence.", 1],
@@ -41,7 +57,7 @@ const quant = (arr, p) => {
   return v[f] + (v[c] - v[f]) * (k - f);
 };
 const med = (a) => quant(a, 0.5);
-const fmt = (n, d = 0) => Number(n).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
+const fmt = (n, d = 0) => Number(n).toLocaleString(LOCALE, { maximumFractionDigits: d, minimumFractionDigits: d });
 const fmtMs = (ms) => (ms >= 10000 ? `${fmt(ms / 1000, 1)} s` : ms >= 1000 ? `${fmt(ms / 1000, 2)} s` : `${fmt(ms, ms < 10 ? 1 : 0)} ms`);
 const pctTxt = (x, d = 0) => `${fmt(x * 100, d)}%`;
 const dot = (m) => `<i class="mdot" style="background:${MC[m]}"></i>`;
@@ -261,22 +277,30 @@ const buildSetup = () => {
     <td>${fmt(m.delay / 1000, 1)} s</td>
     <td>${fmt(m.inLimit / 1024, 0)}K tokens</td>
     <td>${m.records}</td>
-    <td>${fmt(m.activeMin, 1)} min${m.pausedMin ? `<br><span class="faint">+ ${fmt(m.pausedMin, 1)} min paused</span>` : ""}</td></tr>`).join("");
+    <td>${fmt(m.activeMin, 1)} min${m.pausedMin ? `<br><span class="faint">+ ${fmt(m.pausedMin, 1)} min ${tr("paused", "em pausa")}</span>` : ""}</td></tr>`).join("");
 };
 
 const buildScenarios = () => {
   document.getElementById("scen-grid").innerHTML = S.map((s, i) => {
     const [title, text, turns] = SCEN_TXT[s];
-    return `<div class="scen reveal"><code>${s}</code><h4>${title}</h4><p>${text}</p><span class="turns">${turns} turn${turns > 1 ? "s" : ""} × 5 repeats</span></div>`;
+    return `<div class="scen reveal"><code>${s}</code><h4>${title}</h4><p>${text}</p><span class="turns">${tr(`${turns} turn${turns > 1 ? "s" : ""} × 5 repeats`, `${turns} turno${turns > 1 ? "s" : ""} × 5 repetições`)}</span></div>`;
   }).join("");
 };
 
 const FAIL_WHY = {
+  ...(LANG === "pt" ? {
+  "0|StructuredOutput": ["Rejeitado em cerca de 1 ms, antes de qualquer chamada de rede. O schema usa <code>maxLength</code>, que o adapter do Gemini se recusa a enviar.", "adapter", "Adapter"],
+  "0|ToolChain|2": ["Rate limit duas vezes. O segundo <code>Retry-After</code> pediu 58 s, mais do que restava do prazo de 60 s do turno.", "provider", "Limite do provedor"],
+  "2|ToolChain|1": ["Depois de duas consultas, a tool call do modelo veio num formato que o adapter rejeitou (<code>InvalidResponse</code>, sem retry).", "adapter", "Modelo / adapter"],
+  "2|ToolChain|4": ["Quatro erros de rate limit seguidos. A execução terminou como <code>ModelUnavailable</code> depois de 3 retries.", "provider", "Limite do provedor"],
+  "1|Cancellation|2": ["O modelo recusou a redação em 709 ms, então o turno terminou antes de o cancelamento chegar aos 800 ms.", "design", "Desenho do benchmark"],
+  } : {
   "0|StructuredOutput": ["Rejected in about 1 ms, before any network call. The schema uses <code>maxLength</code>, which the Gemini adapter refuses to send.", "adapter", "Adapter"],
   "0|ToolChain|2": ["Rate-limited twice. The second <code>Retry-After</code> asked for 58 s, more than the 60 s turn deadline had left.", "provider", "Provider limit"],
   "2|ToolChain|1": ["After two lookups, the model's tool call came back in a form the adapter rejected (<code>InvalidResponse</code>, not retried).", "adapter", "Model / adapter"],
   "2|ToolChain|4": ["Four rate-limit errors in a row. The run ended as <code>ModelUnavailable</code> after 3 retries.", "provider", "Provider limit"],
   "1|Cancellation|2": ["The model refused the essay in 709 ms, so the turn completed before the 800 ms cancel arrived.", "design", "Benchmark design"],
+  }),
 };
 const buildFailTable = () => {
   const fails = T.filter((t) => !t[K.met]);
@@ -284,7 +308,7 @@ const buildFailTable = () => {
   const gem = fails.filter((t) => t[K.m] === 0 && S[t[K.s]] === "StructuredOutput");
   if (gem.length) rows.push([0, "StructuredOutput", gem.map((t) => t[K.rep]).join(", "), gem[0][K.status], FAIL_WHY["0|StructuredOutput"]]);
   fails.filter((t) => !(t[K.m] === 0 && S[t[K.s]] === "StructuredOutput")).forEach((t) => {
-    rows.push([t[K.m], S[t[K.s]], t[K.rep], t[K.status], FAIL_WHY[`${t[K.m]}|${S[t[K.s]]}|${t[K.rep]}`] || ["See the exported record.", "design", "Other"]]);
+    rows.push([t[K.m], S[t[K.s]], t[K.rep], t[K.status], FAIL_WHY[`${t[K.m]}|${S[t[K.s]]}|${t[K.rep]}`] || [tr("See the exported record.", "Veja o registro exportado."), "design", tr("Other", "Outro")]]);
   });
   document.querySelector("#fail-table tbody").innerHTML = rows.map(([m, s, rep, st, [why, cls, who]]) =>
     `<tr><td>${dot(m)}${MS[m]}</td><td><code>${s}</code></td><td>${rep}</td><td><code>${st}</code></td><td>${why}</td><td><span class="who ${cls}">${who}</span></td></tr>`).join("");
@@ -297,26 +321,26 @@ const buildPassRow = () => {
     S.forEach((s) => { reps += B.stats[m][s].reps; repsOk += B.stats[m][s].repsOk; });
     return `<div class="passc reveal" style="--c:${MC[m]}">
       <header>${dot(m)}${MN[m]}</header>
-      <div class="big">${a.met}/${a.n}<small>turns passed (${pctTxt(a.met / a.n, 1)})</small></div>
-      <div class="wil" aria-label="95% interval ${pctTxt(a.lo, 0)} to ${pctTxt(a.hi, 0)}"><i style="left:${a.lo * 100}%;width:${(a.hi - a.lo) * 100}%"></i><u style="left:calc(${(a.met / a.n) * 100}% - 1px)"></u></div>
-      <div class="wil-scale"><span>0%</span><span>95% interval ${pctTxt(a.lo)}–${pctTxt(a.hi)}</span><span>100%</span></div>
-      <p>pass^5: ${repsOk} of ${reps} scenario runs passed on every turn.</p></div>`;
+      <div class="big">${a.met}/${a.n}<small>${tr("turns passed", "turnos aprovados")} (${pctTxt(a.met / a.n, 1)})</small></div>
+      <div class="wil" aria-label="${tr("95% interval", "intervalo de 95%")} ${pctTxt(a.lo, 0)} ${tr("to", "a")} ${pctTxt(a.hi, 0)}"><i style="left:${a.lo * 100}%;width:${(a.hi - a.lo) * 100}%"></i><u style="left:calc(${(a.met / a.n) * 100}% - 1px)"></u></div>
+      <div class="wil-scale"><span>0%</span><span>${tr("95% interval", "intervalo de 95%")} ${pctTxt(a.lo)}–${pctTxt(a.hi)}</span><span>100%</span></div>
+      <p>${tr(`pass^5: ${repsOk} of ${reps} scenario runs passed on every turn.`, `pass^5: ${repsOk} de ${reps} execuções de cenário passaram em todos os turnos.`)}</p></div>`;
   }).join("");
 };
 
 const buildCliff = () => {
   const pairs = [["0-1", "Gemini vs 120B"], ["0-2", "Gemini vs 20B"], ["1-2", "120B vs 20B"]];
   const cls = { large: "lg", medium: "md", small: "sm", negligible: "" };
-  let html = `<thead><tr><th>Scenario</th>${pairs.map((p) => `<th>${p[1]}</th>`).join("")}</tr></thead><tbody>`;
+  let html = `<thead><tr><th>${tr("Scenario", "Cenário")}</th>${pairs.map((p) => `<th>${p[1]}</th>`).join("")}</tr></thead><tbody>`;
   S.forEach((s) => {
     html += `<tr><td><code>${s}</code></td>`;
     pairs.forEach(([k]) => {
       const c = B.cliff[s][k];
-      if (s === "Cancellation") { html += `<td class="cd">–<span>not compared: cancel fixed at 800 ms</span></td>`; return; }
-      if (c.noRetry === null || c.nA < 3 || c.nB < 3) { html += `<td class="cd">–<span>${c.nA === 0 || c.nB === 0 ? "no completed turns for Gemini" : "not enough turns"}</span></td>`; return; }
+      if (s === "Cancellation") { html += `<td class="cd">–<span>${tr("not compared: cancel fixed at 800 ms", "não comparado: cancelamento fixo em 800 ms")}</span></td>`; return; }
+      if (c.noRetry === null || c.nA < 3 || c.nB < 3) { html += `<td class="cd">–<span>${c.nA === 0 || c.nB === 0 ? tr("no completed turns for Gemini", "nenhum turno concluído no Gemini") : tr("not enough turns", "turnos insuficientes")}</span></td>`; return; }
       const v = c.noRetry;
       const faster = v > 0 ? (k[2] === "1" ? "120B" : "20B") : v < 0 ? (k[0] === "0" ? "Gemini" : "120B") : "tie";
-      html += `<td class="cd ${cls[c.magNoRetry]}">${v > 0 ? "+" : ""}${v.toFixed(2)}<span>${c.magNoRetry}${v !== 0 ? `, ${faster} faster` : ""}</span></td>`;
+      html += `<td class="cd ${cls[c.magNoRetry]}">${v > 0 ? "+" : ""}${v.toFixed(2)}<span>${tr(c.magNoRetry, { large: "grande", medium: "médio", small: "pequeno", negligible: "desprezível" }[c.magNoRetry] || c.magNoRetry)}${v !== 0 ? tr(`, ${faster} faster`, `, ${faster} mais rápido`) : ""}</span></td>`;
     });
     html += "</tr>";
   });
@@ -347,7 +371,16 @@ const skillPairs = (m) => {
 const buildScore = () => {
   const plain = S.indexOf("PlainText");
   const cells = (f) => [0, 1, 2].map((m) => `<td>${f(m)}</td>`).join("");
-  const rows = [
+  const rows = LANG === "pt" ? [
+    ["Turnos que cumpriram a expectativa", (m) => { const a = B.stats[m]._all; return `<b>${a.met}/${a.n}</b> (${pctTxt(a.met / a.n, 1)})`; }],
+    ["Prompt curto, tempo mediano (sem esperas)", (m) => fmtMs(B.stats[m].PlainText.p50NoRetry)],
+    ["Parcela do tempo esperando rate limits", (m) => pctTxt(B.stats[m]._all.retryW / B.stats[m]._all.clientSum)],
+    ["Retries", (m) => B.stats[m]._all.retries],
+    ["Velocidade de saída (informada pelo provedor)", (m) => `${fmt(B.provider[m].tpsP50)} tokens/s`],
+    ["Tempo de Arandu e Unity por turno (mediana)", (m) => fmtMs(B.overhead[m].localP50)],
+    ["Seguiu a Skill detalhada", (m) => `${skillPairs(m).filter((p) => p[2] >= 1.5 * p[1]).length} de 5`],
+    ["Principal problema", (m) => ["StructuredOutput bloqueado pela checagem de schema do adapter", "Limite de tokens por minuto: esperas longas", "Limite de tokens, uma tool call ilegível, troca de Skill quase ignorada"][m]],
+  ] : [
     ["Turns that met the expectation", (m) => { const a = B.stats[m]._all; return `<b>${a.met}/${a.n}</b> (${pctTxt(a.met / a.n, 1)})`; }],
     ["Short prompt, median time (no waits)", (m) => fmtMs(B.stats[m].PlainText.p50NoRetry)],
     ["Share of time waiting for rate limits", (m) => pctTxt(B.stats[m]._all.retryW / B.stats[m]._all.clientSum)],
@@ -393,7 +426,7 @@ const lazy = (id, build) => {
   const el = document.getElementById(id);
   if (!el) return;
   const start = () => {
-    if (typeof echarts === "undefined") { el.innerHTML = '<p class="chart-note">The chart library could not load. Check the internet connection and reload.</p>'; return; }
+    if (typeof echarts === "undefined") { el.innerHTML = `<p class="chart-note">${tr("The chart library could not load. Check the internet connection and reload.", "A biblioteca de gráficos não carregou. Verifique a conexão com a internet e recarregue.")}</p>`; return; }
     const chart = echarts.init(el, null, { renderer: "canvas" });
     charts.push(chart);
     build(chart, el);
@@ -500,7 +533,8 @@ lazy("c-reliability", (chart) => {
       ...base().tooltip,
       formatter: (p) => {
         const [m, si, r, met, n, lo, hi, ok, reps] = p.value;
-        return `<b>${S[si]}</b> · ${MN[m]}<br>${met} of ${n} turns passed (${pctTxt(r)})<br>95% interval: ${pctTxt(lo)}–${pctTxt(hi)}<br>pass^5: ${ok} of ${reps} repeats fully passed<br><span style="color:${FAINT}">Click for details</span>`;
+        return tr(`<b>${S[si]}</b> · ${MN[m]}<br>${met} of ${n} turns passed (${pctTxt(r)})<br>95% interval: ${pctTxt(lo)}–${pctTxt(hi)}<br>pass^5: ${ok} of ${reps} repeats fully passed<br><span style="color:${FAINT}">Click for details</span>`,
+          `<b>${S[si]}</b> · ${MN[m]}<br>${met} de ${n} turnos aprovados (${pctTxt(r)})<br>intervalo de 95%: ${pctTxt(lo)}–${pctTxt(hi)}<br>pass^5: ${ok} de ${reps} repetições aprovadas por completo<br><span style="color:${FAINT}">Clique para ver detalhes</span>`);
       },
     },
     series: [{
@@ -530,7 +564,7 @@ lazy("c-reliability", (chart) => {
     const [m, si] = p.value;
     const rows = turnsOf(m, si);
     detail.innerHTML = `<h4>${dot(m)}${MN[m]} · <code>${S[si]}</code></h4><div class="turn-list">${rows.map((t, i) =>
-      `<div class="turn-item" style="--i:${i}"><b>repeat ${t[K.rep]}${SCEN_TXT[S[si]][2] > 1 ? ` · turn ${t[K.turn]}` : ""}</b> <span class="${t[K.met] ? "ok" : "no"}">${t[K.met] ? "passed" : "not passed"}</span> · ${t[K.status]} · ${fmtMs(t[K.client])}${t[K.retries] ? ` · ${t[K.retries]} retr${t[K.retries] > 1 ? "ies" : "y"}` : ""}${t[K.paused] ? ` · <span class="no">Unity minimized, time not used</span>` : ""}<br>${t[K.preview] ? `“${t[K.preview].replace(/</g, "&lt;").slice(0, 90)}”` : "<i>no answer</i>"}</div>`).join("")}</div>`;
+      `<div class="turn-item" style="--i:${i}"><b>${tr("repeat", "repetição")} ${t[K.rep]}${SCEN_TXT[S[si]][2] > 1 ? ` · ${tr("turn", "turno")} ${t[K.turn]}` : ""}</b> <span class="${t[K.met] ? "ok" : "no"}">${t[K.met] ? tr("passed", "aprovado") : tr("not passed", "não aprovado")}</span> · ${t[K.status]} · ${fmtMs(t[K.client])}${t[K.retries] ? ` · ${t[K.retries]} retr${t[K.retries] > 1 ? "ies" : "y"}` : ""}${t[K.paused] ? ` · <span class="no">${tr("Unity minimized, time not used", "Unity minimizado, tempo não usado")}</span>` : ""}<br>${t[K.preview] ? `“${t[K.preview].replace(/</g, "&lt;").slice(0, 90)}”` : `<i>${tr("no answer", "sem resposta")}</i>`}</div>`).join("")}</div>`;
   });
 });
 
@@ -550,12 +584,12 @@ lazy("c-latency", (chart) => {
       ...base(),
       grid: { left: 62, right: 14, top: 16, bottom: 66 },
       xAxis: catAxes(S.map(camel)),
-      yAxis: msAxis({ type: "log", min: 100, max: 60000, logBase: 10, name: "turn time (log scale)", nameLocation: "middle", nameGap: 48 }),
+      yAxis: msAxis({ type: "log", min: 100, max: 60000, logBase: 10, name: tr("turn time (log scale)", "tempo do turno (escala log)"), nameLocation: "middle", nameGap: 48 }),
       tooltip: {
         ...base().tooltip, trigger: "item",
         formatter: (p) => {
           const t = p.data.tip; if (!t) return "";
-          return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>repeat ${t[K.rep]}${t[K.turn] > 1 ? `, turn ${t[K.turn]}` : ""} · ${t[K.status]}<br>total: <b>${fmtMs(t[K.client])}</b>${t[K.retry] ? `<br>rate-limit wait: ${fmtMs(t[K.retry])} (${t[K.retries]} retr${t[K.retries] > 1 ? "ies" : "y"})` : ""}`;
+          return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>${tr("repeat", "repetição")} ${t[K.rep]}${t[K.turn] > 1 ? `, ${tr("turn", "turno")} ${t[K.turn]}` : ""} · ${t[K.status]}<br>total: <b>${fmtMs(t[K.client])}</b>${t[K.retry] ? `<br>${tr("rate-limit wait", "espera de rate limit")}: ${fmtMs(t[K.retry])} (${t[K.retries]} retr${t[K.retries] > 1 ? "ies" : "y"})` : ""}`;
         },
       },
       series: boxSeries(latencyGroups(mode), S.length, { xAxisIndex: 1 }),
@@ -563,7 +597,7 @@ lazy("c-latency", (chart) => {
   };
   render(segMode("latency") || "total");
   seg("latency", (mode) => {
-    document.getElementById("lat-sub").textContent = mode === "total" ? "Total time the game waited" : "Time without the rate-limit waits (what the model and network took)";
+    document.getElementById("lat-sub").textContent = mode === "total" ? tr("Total time the game waited", "Tempo total que o jogo esperou") : tr("Time without the rate-limit waits (what the model and network took)", "Tempo sem as esperas de rate limit (o que o modelo e a rede levaram)");
     render(mode);
   });
 });
@@ -579,10 +613,10 @@ lazy("c-ecdf", (chart) => {
   const render = (mode) => chart.setOption({
     ...base(),
     grid: { left: 50, right: 16, top: 14, bottom: 44 },
-    xAxis: msAxis({ type: "log", min: 200, max: 60000, name: "turn time (log scale)", nameLocation: "middle", nameGap: 28 }),
+    xAxis: msAxis({ type: "log", min: 200, max: 60000, name: tr("turn time (log scale)", "tempo do turno (escala log)"), nameLocation: "middle", nameGap: 28 }),
     yAxis: ax({ type: "value", min: 0, max: 100, axisLabel: { formatter: "{value}%" } }),
     tooltip: { ...base().tooltip, trigger: "axis", axisPointer: { type: "line", lineStyle: { color: "rgba(125,211,252,.5)" } },
-      formatter: (ps) => `${fmtMs(ps[0].value[0])}<br>${ps.map((p) => `${dot(p.seriesIndex)}${MS[p.seriesIndex]}: ${fmt(p.value[1])}% of turns done`).join("<br>")}` },
+      formatter: (ps) => `${fmtMs(ps[0].value[0])}<br>${ps.map((p) => `${dot(p.seriesIndex)}${MS[p.seriesIndex]}: ${fmt(p.value[1])}% ${tr("of turns done", "dos turnos concluídos")}`).join("<br>")}` },
     series: series(mode),
   }, { replaceMerge: ["series"] });
   render(segMode("ecdf") || "total");
@@ -597,7 +631,7 @@ lazy("c-simple", (chart) => {
     grid: { left: 52, right: 10, top: 26, bottom: 58 },
     xAxis: ax({ type: "category", data: sc.map(camel), axisLabel: { interval: 0, lineHeight: 15 }, splitLine: { show: false } }),
     yAxis: msAxis({}),
-    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `<b>${sc[p.dataIndex]}</b> · ${MN[p.seriesIndex]}<br>median: ${p.value === null ? "no completed turns" : fmtMs(p.value)}` },
+    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `<b>${sc[p.dataIndex]}</b> · ${MN[p.seriesIndex]}<br>${tr("median", "mediana")}: ${p.value === null ? tr("no completed turns", "nenhum turno concluído") : fmtMs(p.value)}` },
     series: [0, 1, 2].map((m) => ({
       type: "bar", name: MN[m], barGap: "18%", barMaxWidth: 26,
       data: sc.map((s) => { const st = B.stats[m][s]; return st.met === 0 ? null : Math.round(st.p50NoRetry); }),
@@ -610,7 +644,7 @@ lazy("c-simple", (chart) => {
 
 /* ---------- 5. Time split ---------- */
 const splitSel = document.getElementById("split-scen");
-splitSel.innerHTML = `<option value="_all">All scenarios</option>` + S.map((s) => `<option value="${s}">${s}</option>`).join("");
+splitSel.innerHTML = `<option value="_all">${tr("All scenarios", "Todos os cenários")}</option>` + S.map((s) => `<option value="${s}">${s}</option>`).join("");
 lazy("c-split", (chart) => {
   let mode = segMode("split") || "share", scen = splitSel.value || "_all";
   const render = () => {
@@ -629,7 +663,7 @@ lazy("c-split", (chart) => {
         : { type: "value", max: null, axisLabel: { formatter: (v) => `${fmt(v)} s` } }),
       tooltip: { ...base().tooltip, trigger: "axis", axisPointer: { type: "shadow", shadowStyle: { color: "rgba(167,139,250,.06)" } },
         formatter: (ps) => { const m = ps[0].dataIndex; const v = vals[m];
-          return `<b>${MN[m]}</b> · ${scen === "_all" ? "all scenarios" : scen}<br>${v.parts.map((x, i) => `<i class="mdot" style="background:${PH[i]};border-radius:3px"></i>${PHN[i]}: ${fmt(x / 1000, 1)} s (${pctTxt(x / v.tot, 1)})`).join("<br>")}<br>total: ${fmt(v.tot / 1000, 1)} s`; } },
+          return `<b>${MN[m]}</b> · ${scen === "_all" ? tr("all scenarios", "todos os cenários") : scen}<br>${v.parts.map((x, i) => `<i class="mdot" style="background:${PH[i]};border-radius:3px"></i>${PHN[i]}: ${fmt(x / 1000, 1)} s (${pctTxt(x / v.tot, 1)})`).join("<br>")}<br>total: ${fmt(v.tot / 1000, 1)} s`; } },
       series: PHN.map((n, i) => ({
         type: "bar", name: n, stack: "t", barWidth: small() ? 22 : 30,
         data: vals.map((v) => (mode === "share" ? +(v.parts[i] / v.tot * 100).toFixed(2) : +(v.parts[i] / 1000).toFixed(2))),
@@ -639,7 +673,7 @@ lazy("c-split", (chart) => {
         animationDelay: (k) => i * 260 + k * 90, animationDuration: 1100,
       })),
     }, { replaceMerge: ["series"] });
-    document.getElementById("split-sub").textContent = `${scen === "_all" ? "All scenarios" : scen} · ${mode === "share" ? "share of total turn time" : "total seconds across all turns"}`;
+    document.getElementById("split-sub").textContent = `${scen === "_all" ? tr("All scenarios", "Todos os cenários") : scen} · ${mode === "share" ? tr("share of total turn time", "parcela do tempo total dos turnos") : tr("total seconds across all turns", "total de segundos somando todos os turnos")}`;
   };
   render();
   seg("split", (m) => { mode = m; render(); });
@@ -656,12 +690,12 @@ lazy("c-overhead", (chart) => {
     xAxis: catAxes(MS),
     yAxis: msAxis({ type: "log", min: 1, max: 300 }),
     tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => { const t = p.data.tip; if (!t) return "";
-      return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>Arandu &amp; Unity: <b>${fmtMs(t[K.local])}</b> of ${fmtMs(t[K.client])} (${pctTxt(t[K.local] / t[K.client], 1)})`; } },
+      return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>${tr("Arandu &amp; Unity", "Arandu e Unity")}: <b>${fmtMs(t[K.local])}</b> ${tr("of", "de")} ${fmtMs(t[K.client])} (${pctTxt(t[K.local] / t[K.client], 1)})`; } },
     series: boxSeries(groups, 3, { xAxisIndex: 1, offsets: [0, 0, 0], width: 0.5, dot: 6 }),
   });
 });
 lazy("c-overhead-parts", (chart) => {
-  const cats = ["Core phases", "Unity frame wait", "Adapter work", "Submit and hand-back"];
+  const cats = tr(["Core phases", "Unity frame wait", "Adapter work", "Submit and hand-back"], ["Fases do Core", "Espera de frame do Unity", "Trabalho do adapter", "Envio e devolução"]);
   const vals = [0, 1, 2].map((m) => {
     const r = cleanTurns(m);
     return [med(r.map((t) => t[K.queue] + t[K.prep] + t[K.context] + t[K.checkpoint])), med(r.map((t) => t[K.resume])),
@@ -672,9 +706,11 @@ lazy("c-overhead-parts", (chart) => {
     grid: { left: 44, right: 10, top: 26, bottom: 44 },
     xAxis: ax({ type: "category", data: cats.map((c) => c.replace(" ", "\n")), axisLabel: { interval: 0, lineHeight: 15 }, splitLine: { show: false } }),
     yAxis: ax({ type: "value", axisLabel: { formatter: "{value} ms" } }),
-    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `<b>${cats[p.dataIndex]}</b> · ${MN[p.seriesIndex]}<br>median: ${fmt(p.value, 1)} ms<br><span style="color:${FAINT}">${[
+    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `<b>${cats[p.dataIndex]}</b> · ${MN[p.seriesIndex]}<br>${tr("median", "mediana")}: ${fmt(p.value, 1)} ms<br><span style="color:${FAINT}">${tr([
       "Queue, preparation, context and checkpoint phases.", "Waiting for the next Unity frame after the HTTP call ends.",
-      "Adapter and Core work around the HTTP call (encode, decode).", "Between the sample's submit/result and the run's own clock."][p.dataIndex]}</span>` },
+      "Adapter and Core work around the HTTP call (encode, decode).", "Between the sample's submit/result and the run's own clock."], [
+      "Fases de fila, preparação, context e checkpoint.", "Espera pelo próximo frame do Unity depois que a chamada HTTP termina.",
+      "Trabalho do adapter e do Core em volta da chamada HTTP (encode, decode).", "Entre o submit/result da sample e o relógio da própria execução."])[p.dataIndex]}</span>` },
     series: [0, 1, 2].map((m) => ({
       type: "bar", name: MN[m], barMaxWidth: 22, data: vals[m].map((v) => +v.toFixed(2)),
       itemStyle: { color: MC[m], borderRadius: [4, 4, 0, 0] },
@@ -700,10 +736,10 @@ lazy("c-timeline", (chart) => {
   const opt = (data) => ({
     ...base(),
     grid: { left: 52, right: 16, top: 30, bottom: 44 },
-    xAxis: ax({ type: "value", min: 0, max: Math.ceil(blocks[2][1]), name: "active minutes since the session started (pauses removed)", nameLocation: "middle", nameGap: 28 }),
+    xAxis: ax({ type: "value", min: 0, max: Math.ceil(blocks[2][1]), name: tr("active minutes since the session started (pauses removed)", "minutos ativos desde o início da sessão (pausas removidas)"), nameLocation: "middle", nameGap: 28 }),
     yAxis: ax({ type: "log", min: 0.1, max: 60, axisLabel: { formatter: (v) => `${v} s` } }),
     tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => { const t = p.data.t; if (!t) return "";
-      return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>repeat ${t[K.rep]}${t[K.turn] > 1 ? `, turn ${t[K.turn]}` : ""} · ${fmt(t[K.active] / 60, 1)} active min<br>turn time: ${fmtMs(t[K.client])}${t[K.retries] ? `<br>waited ${fmtMs(t[K.retry])} for rate limits` : ""}${t[K.paused] ? `<br><span style="color:#fda4af">ran while Unity was minimized: not used in timing charts</span>` : ""}`; } },
+      return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>${tr("repeat", "repetição")} ${t[K.rep]}${t[K.turn] > 1 ? `, ${tr("turn", "turno")} ${t[K.turn]}` : ""} · ${fmt(t[K.active] / 60, 1)} ${tr("active min", "min ativos")}<br>${tr("turn time", "tempo do turno")}: ${fmtMs(t[K.client])}${t[K.retries] ? `<br>${tr(`waited ${fmtMs(t[K.retry])} for rate limits`, `esperou ${fmtMs(t[K.retry])} por rate limits`)}` : ""}${t[K.paused] ? `<br><span style="color:#fda4af">${tr("ran while Unity was minimized: not used in timing charts", "rodou com o Unity minimizado: fora dos gráficos de tempo")}</span>` : ""}`; } },
     series: [{
       type: "scatter", data, animationDelay: (i) => i * 6, animationDuration: 600,
       markLine: { silent: true, symbol: "none", lineStyle: { color: "rgba(167,163,204,.55)", type: [3, 4], width: 1 },
@@ -738,10 +774,10 @@ lazy("c-tpm", (chart) => {
   chart.setOption({
     ...base(),
     grid: { left: 48, right: 16, top: 16, bottom: 44 },
-    xAxis: ax({ type: "value", min: 0, name: "input tokens in the turn", nameLocation: "middle", nameGap: 28, axisLabel: { formatter: (v) => (v >= 1000 ? `${v / 1000}K` : v) } }),
-    yAxis: ax({ type: "value", min: 0, name: "rate-limit wait (s)", nameLocation: "middle", nameGap: 32 }),
+    xAxis: ax({ type: "value", min: 0, name: tr("input tokens in the turn", "tokens de entrada no turno"), nameLocation: "middle", nameGap: 28, axisLabel: { formatter: (v) => (v >= 1000 ? `${v / 1000}K` : v) } }),
+    yAxis: ax({ type: "value", min: 0, name: tr("rate-limit wait (s)", "espera de rate limit (s)"), nameLocation: "middle", nameGap: 32 }),
     tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => { const t = p.data.t;
-      return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>repeat ${t[K.rep]}${t[K.turn] > 1 ? `, turn ${t[K.turn]}` : ""}<br>${fmt(t[K.inU])} input tokens<br>waited ${fmt(t[K.retry] / 1000, 1)} s (${t[K.retries]} retr${t[K.retries] === 1 ? "y" : "ies"})`; } },
+      return `<b>${S[t[K.s]]}</b> · ${MN[t[K.m]]}<br>${tr("repeat", "repetição")} ${t[K.rep]}${t[K.turn] > 1 ? `, ${tr("turn", "turno")} ${t[K.turn]}` : ""}<br>${fmt(t[K.inU])} ${tr("input tokens", "tokens de entrada")}<br>${tr("waited", "esperou")} ${fmt(t[K.retry] / 1000, 1)} s (${t[K.retries]} retr${t[K.retries] === 1 ? "y" : "ies"})`; } },
     series,
   });
 });
@@ -753,9 +789,9 @@ lazy("c-honor", (chart) => {
   chart.setOption({
     ...base(),
     grid: { left: 48, right: 16, top: 16, bottom: 44 },
-    xAxis: ax({ type: "value", min: 0, max, name: "wait asked by the provider (s)", nameLocation: "middle", nameGap: 28 }),
-    yAxis: ax({ type: "value", min: 0, max, name: "wait done (s)", nameLocation: "middle", nameGap: 32 }),
-    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => (p.seriesIndex ? "" : `<b>${S[p.data.s]}</b> · ${MN[p.data.m]}<br>asked: ${fmt(p.value[0], 1)} s · waited: ${fmt(p.value[1], 1)} s`) },
+    xAxis: ax({ type: "value", min: 0, max, name: tr("wait asked by the provider (s)", "espera pedida pelo provedor (s)"), nameLocation: "middle", nameGap: 28 }),
+    yAxis: ax({ type: "value", min: 0, max, name: tr("wait done (s)", "espera feita (s)"), nameLocation: "middle", nameGap: 32 }),
+    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => (p.seriesIndex ? "" : `<b>${S[p.data.s]}</b> · ${MN[p.data.m]}<br>${tr("asked", "pedido")}: ${fmt(p.value[0], 1)} s · ${tr("waited", "esperado")}: ${fmt(p.value[1], 1)} s`) },
     series: [
       { type: "scatter", data: pts, symbolSize: 9, itemStyle: { opacity: .85, borderColor: "rgba(7,6,26,.9)", borderWidth: 1 },
         animationDelay: (i) => i * 22, animationEasing: "backOut" },
@@ -773,7 +809,7 @@ lazy("c-tools", (chart) => {
     xAxis: ax({ type: "category", data: sc.map(camel), axisLabel: { interval: 0, lineHeight: 15 }, splitLine: { show: false } }),
     yAxis: ax({ type: "value", minInterval: 1 }),
     tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => { const r = turnsOf(p.seriesIndex, S.indexOf(sc[p.dataIndex]));
-      return `<b>${sc[p.dataIndex]}</b> · ${MN[p.seriesIndex]}<br>median model calls: ${p.value}<br>tool calls: ${r.map((t) => t[K.reads] + t[K.muts]).join(", ")}<br>retries: ${r.reduce((a, t) => a + t[K.retries], 0)}`; } },
+      return `<b>${sc[p.dataIndex]}</b> · ${MN[p.seriesIndex]}<br>${tr("median model calls", "mediana de chamadas ao modelo")}: ${p.value}<br>tool calls: ${r.map((t) => t[K.reads] + t[K.muts]).join(", ")}<br>retries: ${r.reduce((a, t) => a + t[K.retries], 0)}`; } },
     series: [0, 1, 2].map((m) => ({
       type: "bar", name: MN[m], barMaxWidth: 24,
       data: sc.map((s) => med(turnsOf(m, S.indexOf(s)).map((t) => t[K.attempts]))),
@@ -788,26 +824,28 @@ lazy("c-tools", (chart) => {
 lazy("c-context", (chart) => {
   const ci = S.indexOf("ContextPressure");
   const avg = (m, key) => [1, 2, 3, 4, 5, 6, 7].map((k) => { const r = turnsOf(m, ci).filter((t) => t[K.turn] === k); return r.reduce((a, t) => a + t[key], 0) / (r.length || 1); });
-  const press = { silent: true, symbol: "none", lineStyle: { color: "rgba(236,233,255,.45)", width: 1 }, label: { color: INK, formatter: "pressure detected", fontSize: 11 }, data: [{ xAxis: 5 }] };
+  const press = { silent: true, symbol: "none", lineStyle: { color: "rgba(236,233,255,.45)", width: 1 }, label: { color: INK, formatter: tr("pressure detected", "pressão detectada"), fontSize: 11 }, data: [{ xAxis: 5 }] };
   const render = (mode) => {
     const series = mode === "hist"
       ? [0, 1, 2].map((m) => ({ type: "line", name: MN[m], data: avg(m, K.histB).map((v) => +(v / 1024).toFixed(1)), symbol: "circle", symbolSize: 7,
           lineStyle: { width: 2.2, color: MC[m] }, itemStyle: { color: MC[m] }, animationDuration: 1600, animationDelay: m * 200, markLine: m === 0 ? press : undefined }))
-      : [...[0, 1, 2].map((m) => ({ type: "line", name: `${MS[m]} measured input`, data: avg(m, K.inU).map(Math.round), symbol: "circle", symbolSize: 7,
+      : [...[0, 1, 2].map((m) => ({ type: "line", name: tr(`${MS[m]} measured input`, `${MS[m]} entrada medida`), data: avg(m, K.inU).map(Math.round), symbol: "circle", symbolSize: 7,
           lineStyle: { width: 2.2, color: MC[m] }, itemStyle: { color: MC[m] }, animationDuration: 1600, animationDelay: m * 200, markLine: m === 0 ? press : undefined })),
-        { type: "line", name: "Arandu estimate", data: [1, 2, 3, 4, 5, 6, 7].map((k, i) => Math.round((avg(0, K.estU)[i] + avg(1, K.estU)[i] + avg(2, K.estU)[i]) / 3)),
+        { type: "line", name: tr("Arandu estimate", "estimativa do Arandu"), data: [1, 2, 3, 4, 5, 6, 7].map((k, i) => Math.round((avg(0, K.estU)[i] + avg(1, K.estU)[i] + avg(2, K.estU)[i]) / 3)),
           symbol: "diamond", symbolSize: 9, lineStyle: { width: 2.2, color: "#d9d6f5", type: [6, 4] }, itemStyle: { color: "#d9d6f5" }, animationDuration: 1600, animationDelay: 600 }];
     chart.setOption({
       ...base(),
       grid: { left: 52, right: 14, top: 22, bottom: 40 },
-      xAxis: ax({ type: "category", data: ["1", "2", "3", "4", "5", "6", "7"], name: "turn", nameLocation: "middle", nameGap: 26, splitLine: { show: false } }),
+      xAxis: ax({ type: "category", data: ["1", "2", "3", "4", "5", "6", "7"], name: tr("turn", "turno"), nameLocation: "middle", nameGap: 26, splitLine: { show: false } }),
       yAxis: ax({ type: "value", axisLabel: { formatter: mode === "hist" ? "{value} KB" : (v) => (v >= 1000 ? `${v / 1000}K` : v) } }),
-      tooltip: { ...base().tooltip, trigger: "axis", formatter: (ps) => `turn ${ps[0].name}<br>${ps.map((p) => `${p.marker}${p.seriesName}: ${fmt(p.value)}${mode === "hist" ? " KB of history" : " tokens"}`).join("<br>")}` },
+      tooltip: { ...base().tooltip, trigger: "axis", formatter: (ps) => `${tr("turn", "turno")} ${ps[0].name}<br>${ps.map((p) => `${p.marker}${p.seriesName}: ${fmt(p.value)}${mode === "hist" ? tr(" KB of history", " KB de histórico") : " tokens"}`).join("<br>")}` },
       series,
     }, { replaceMerge: ["series"] });
     document.getElementById("context-note").innerHTML = mode === "hist"
-      ? "Average over the 5 repeats. The three lines lie on top of each other because every model receives the same messages. History grows about 4.7 KB per turn and stops growing after pressure is detected at turn 6."
-      : "Arandu's own estimate of the request size (dashed) runs about 4–6× above the input tokens the provider measured. Turns 6–7 include the summary request, which raises Gemini's measured input.";
+      ? tr("Average over the 5 repeats. The three lines lie on top of each other because every model receives the same messages. History grows about 4.7 KB per turn and stops growing after pressure is detected at turn 6.",
+        "Média das 5 repetições. As três linhas ficam umas sobre as outras porque todos os modelos recebem as mesmas mensagens. O histórico cresce cerca de 4,7 KB por turno e para de crescer depois que a pressão é detectada no turno 6.")
+      : tr("Arandu's own estimate of the request size (dashed) runs about 4–6× above the input tokens the provider measured. Turns 6–7 include the summary request, which raises Gemini's measured input.",
+        "A estimativa do próprio Arandu para o tamanho do request (tracejada) fica cerca de 4–6× acima dos tokens de entrada medidos pelo provedor. Os turnos 6–7 incluem o request de resumo, o que aumenta a entrada medida do Gemini.");
   };
   render(segMode("context") || "hist");
   seg("context", render);
@@ -815,7 +853,7 @@ lazy("c-context", (chart) => {
 
 /* ---------- 12. Summary outcomes ---------- */
 lazy("c-summary", (chart) => {
-  const cats = ["Cut off (Truncated)", "Failed (rate limit)", "Completed, not accepted"];
+  const cats = tr(["Cut off (Truncated)", "Failed (rate limit)", "Completed, not accepted"], ["Cortado (Truncated)", "Falhou (rate limit)", "Concluído, não aceito"]);
   const counts = [0, 1, 2].map((m) => {
     const s = D.filter((x) => x[DK.m] === m && x[DK.kind] === "summaryDispatch");
     return [s.filter((x) => x[DK.task] === "RanToCompletion" && x[DK.finish] === "Truncated").length,
@@ -829,7 +867,7 @@ lazy("c-summary", (chart) => {
     legend: { top: 0, left: 0, textStyle: { color: MUTED, fontSize: 11 }, itemWidth: 12, itemHeight: 10, icon: "roundRect" },
     yAxis: ax({ type: "category", data: small() ? MS : MN, inverse: true, axisLabel: { color: INK, fontSize: small() ? 10 : 12 }, splitLine: { show: false } }),
     xAxis: ax({ type: "value", max: 10, minInterval: 1 }),
-    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `${MN[p.dataIndex]}<br>${p.seriesName}: ${p.value} of 10 summary calls` },
+    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `${MN[p.dataIndex]}<br>${p.seriesName}: ${p.value} ${tr("of 10 summary calls", "de 10 chamadas de resumo")}` },
     series: cats.map((c, i) => ({ type: "bar", name: c, stack: "s", barWidth: 18, data: counts.map((v) => v[i]),
       itemStyle: { color: col[i], borderColor: "rgba(17,14,46,1)", borderWidth: 2 },
       label: { show: true, color: "#0b0820", fontWeight: 600, fontSize: 11, formatter: (p) => (p.value ? p.value : "") },
@@ -843,21 +881,22 @@ lazy("c-skills", (chart) => {
   [0, 1, 2].forEach((m) => skillPairs(m).forEach(([r, a, b]) => rows.push({ m, r, a, b })));
   const labels = rows.map((x) => `${["Gem", "120B", "20B"][x.m]} ${x.r}`);
   const followed = [0, 1, 2].map((m) => skillPairs(m).filter((p) => p[2] >= 1.5 * p[1]).length);
-  document.getElementById("skills-note").textContent = `Hollow dot: terse skill. Filled dot: detailed skill. The answer grew at least 1.5× in ${followed[0]} of 5 repeats for Gemini, ${followed[1]} of 5 for GPT-OSS 120B and ${followed[2]} of 5 for GPT-OSS 20B. The expectation only checks that both turns completed, so it does not catch this.`;
+  document.getElementById("skills-note").textContent = tr(`Hollow dot: terse skill. Filled dot: detailed skill. The answer grew at least 1.5× in ${followed[0]} of 5 repeats for Gemini, ${followed[1]} of 5 for GPT-OSS 120B and ${followed[2]} of 5 for GPT-OSS 20B. The expectation only checks that both turns completed, so it does not catch this.`,
+    `Ponto vazado: Skill concisa. Ponto cheio: Skill detalhada. A resposta cresceu pelo menos 1,5× em ${followed[0]} de 5 repetições no Gemini, ${followed[1]} de 5 no GPT-OSS 120B e ${followed[2]} de 5 no GPT-OSS 20B. A expectativa só confere se os dois turnos terminaram, então não pega isso.`);
   chart.setOption({
     ...base(),
     grid: { left: 44, right: 8, top: 14, bottom: 40 },
     xAxis: ax({ type: "category", data: labels, axisLabel: { interval: 0, rotate: 50, fontSize: 10 }, splitLine: { show: false } }),
-    yAxis: ax({ type: "value", name: "characters", nameTextStyle: { color: FAINT } }),
-    tooltip: { ...base().tooltip, trigger: "axis", formatter: (ps) => { const x = rows[ps[0].dataIndex]; return `${MN[x.m]}, repeat ${x.r}<br>terse: ${x.a} characters<br>detailed: ${x.b} characters (${fmt(x.b / x.a, 1)}×)`; } },
+    yAxis: ax({ type: "value", name: tr("characters", "caracteres"), nameTextStyle: { color: FAINT } }),
+    tooltip: { ...base().tooltip, trigger: "axis", formatter: (ps) => { const x = rows[ps[0].dataIndex]; return tr(`${MN[x.m]}, repeat ${x.r}<br>terse: ${x.a} characters<br>detailed: ${x.b} characters (${fmt(x.b / x.a, 1)}×)`, `${MN[x.m]}, repetição ${x.r}<br>concisa: ${x.a} caracteres<br>detalhada: ${x.b} caracteres (${fmt(x.b / x.a, 1)}×)`); } },
     series: [
       { type: "custom", data: rows.map((x, i) => [i, x.a, x.b, x.m]), silent: true,
         renderItem: (p, api) => { const a = api.coord([api.value(0), api.value(1)]), b = api.coord([api.value(0), api.value(2)]);
           return { type: "line", shape: { x1: a[0], y1: a[1], x2: b[0], y2: b[1] }, style: { stroke: MC[api.value(3)], lineWidth: 2, opacity: .6 },
             enterFrom: { shape: { x1: a[0], y1: a[1], x2: a[0], y2: a[1] } }, transition: ["shape"] }; },
         animationDuration: 1200, animationDelay: (i) => 500 + i * 60 },
-      { type: "scatter", name: "terse", data: rows.map((x) => ({ value: x.a, itemStyle: { color: "rgba(17,14,46,1)", borderColor: MC[x.m], borderWidth: 2 } })), symbolSize: 9, animationDelay: (i) => i * 50 },
-      { type: "scatter", name: "detailed", data: rows.map((x) => ({ value: x.b, itemStyle: { color: MC[x.m] } })), symbolSize: 10, animationDelay: (i) => 700 + i * 60, animationEasing: "backOut" },
+      { type: "scatter", name: tr("terse", "concisa"), data: rows.map((x) => ({ value: x.a, itemStyle: { color: "rgba(17,14,46,1)", borderColor: MC[x.m], borderWidth: 2 } })), symbolSize: 9, animationDelay: (i) => i * 50 },
+      { type: "scatter", name: tr("detailed", "detalhada"), data: rows.map((x) => ({ value: x.b, itemStyle: { color: MC[x.m] } })), symbolSize: 10, animationDelay: (i) => 700 + i * 60, animationEasing: "backOut" },
     ],
   });
 });
@@ -871,7 +910,7 @@ lazy("c-cancel", (chart) => {
     grid: { left: 50, right: 12, top: 12, bottom: 28 },
     xAxis: catAxes(MS),
     yAxis: ax({ type: "value", min: 0, axisLabel: { formatter: "{value} ms" } }),
-    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => { const t = p.data.tip; return t ? `${MN[t[K.m]]}, repeat ${t[K.rep]}<br>cancel → final status: ${fmt(t[K.cancelToTerm], 1)} ms` : ""; } },
+    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => { const t = p.data.tip; return t ? `${MN[t[K.m]]}, ${tr("repeat", "repetição")} ${t[K.rep]}<br>${tr("cancel → final status", "cancelamento → status final")}: ${fmt(t[K.cancelToTerm], 1)} ms` : ""; } },
     series: boxSeries(groups, 3, { xAxisIndex: 1, offsets: [0, 0, 0], width: 0.45, dot: 9 }),
   });
 });
@@ -883,7 +922,7 @@ lazy("c-tps", (chart) => {
     grid: { left: small() ? 90 : 150, right: 40, top: 10, bottom: 44 },
     yAxis: ax({ type: "category", data: small() ? MS : MN, inverse: true, axisLabel: { color: INK, fontSize: small() ? 10 : 13 }, splitLine: { show: false } }),
     xAxis: ax({ type: "value", axisLabel: { formatter: "{value}" }, name: "tokens/s", nameLocation: "middle", nameGap: 22 }),
-    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `${MN[p.dataIndex]}<br>median ${fmt(p.value)} output tokens/s<br>${B.provider[p.dataIndex].tpsN} calls` },
+    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => `${MN[p.dataIndex]}<br>${tr("median", "mediana de")} ${fmt(p.value)} ${tr("output tokens/s", "tokens de saída/s")}<br>${B.provider[p.dataIndex].tpsN} ${tr("calls", "chamadas")}` },
     series: [{ type: "bar", barWidth: 24, data: [0, 1, 2].map((m) => ({ value: Math.round(B.provider[m].tpsP50), itemStyle: { color: MC[m], borderRadius: [0, 4, 4, 0] } })),
       label: { show: true, position: "right", color: INK, fontWeight: 600, formatter: (p) => fmt(p.value) },
       animationDelay: (i) => i * 220, animationDuration: 1800, animationEasing: "elasticOut" }],
@@ -902,9 +941,9 @@ lazy("c-transport", (chart) => {
   chart.setOption({
     ...base(),
     grid: { left: 54, right: 16, top: 14, bottom: 44 },
-    xAxis: msAxis({ type: "log", min: 20, max: 20000, name: "provider processing (log)", nameLocation: "middle", nameGap: 28 }),
-    yAxis: msAxis({ type: "log", min: 50, max: 20000, name: "HTTP time (log)", nameLocation: "middle", nameGap: 40 }),
-    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => (p.seriesIndex > 2 ? "" : `${MN[p.seriesIndex]} · ${S[p.value[2]]}<br>provider: ${fmtMs(p.value[0])}<br>HTTP: ${fmtMs(p.value[1])}<br>difference: ${fmtMs(p.value[1] - p.value[0])}`) },
+    xAxis: msAxis({ type: "log", min: 20, max: 20000, name: tr("provider processing (log)", "processamento do provedor (log)"), nameLocation: "middle", nameGap: 28 }),
+    yAxis: msAxis({ type: "log", min: 50, max: 20000, name: tr("HTTP time (log)", "tempo HTTP (log)"), nameLocation: "middle", nameGap: 40 }),
+    tooltip: { ...base().tooltip, trigger: "item", formatter: (p) => (p.seriesIndex > 2 ? "" : `${MN[p.seriesIndex]} · ${S[p.value[2]]}<br>${tr("provider", "provedor")}: ${fmtMs(p.value[0])}<br>HTTP: ${fmtMs(p.value[1])}<br>${tr("difference", "diferença")}: ${fmtMs(p.value[1] - p.value[0])}`) },
     series,
   });
 });

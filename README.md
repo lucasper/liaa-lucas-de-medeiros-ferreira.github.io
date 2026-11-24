@@ -1,4 +1,23 @@
-# Arandu project website · V5
+# Arandu project website · V6
+
+**V6 (November 24, 2026)** is a copy of V5 with an **Eng / PT-BR language switch** at the top of every page, a full Brazilian Portuguese version of the site, and the re-recorded trailers. V5 and the earlier versions stay in their own folders.
+
+Changes from V5:
+
+- `lang.js` (new, loaded in `<head>`): the switch in the top bar. Each language is its own page: `index.html` / `index.pt-br.html` and `benchmark.html` / `benchmark.pt-br.html`, linked with `<link rel="alternate" hreflang>`. The switch is plain links, so it works without JavaScript. With JavaScript, switching keeps the section being read (`#id`) and the choice is remembered in the browser (`localStorage` key `arandu-lang`); a remembered choice redirects before the page paints.
+- `index.pt-br.html` and `benchmark.pt-br.html`: the full text in Brazilian Portuguese. Arandu's part names and technical terms stay as they are (Core, ModelAdapter, Integration, Editor, Agent, Session, Skill, Tool, Context, Adapter, samples, tool call, retry, backoff, jitter, rate limit, receipt, debug mode, context compaction, thread pool, Edit Mode, Play Mode, scenario names, status codes and file names). Commit titles in the commit view stay as the original git messages; their explanations are translated.
+- `script.js` and `benchmark.js`: text they generate (concept panel, commit view, scenario cards, failure table, scorecard, chart axes, legends and tooltips) comes from `tr(en, pt)`, chosen by `<html lang>`. Numbers and dates use the `pt-BR` locale on the PT pages.
+- Trailer: `assets/arandu-trailer-en.mp4` (new English narration) and `assets/arandu-trailer-pt-br.mp4` (Brazilian Portuguese), both 90 s, H.264, CRF 23, faststart. The PT page plays the PT-BR video. Posters are subtitle-free stills from the same compositions (`arandu-trailer-poster.jpg`, `arandu-trailer-poster-pt-br.jpg`). The narration is now generated locally with Qwen3-TTS (see `C:/Projects/AI/TrailerProject`).
+- `styles.css`: the switch style; the nav collapses into the menu at 1220 px (PT labels are longer) and links get tighter padding up to 1360 px.
+- Footer date updated on the home page.
+
+To publish V6, replace the repository root files with the files from this folder, including `assets/`, `data/`, `tools/` and the new `lang.js`, `index.pt-br.html` and `benchmark.pt-br.html`.
+
+The text below describes V5 and still applies.
+
+---
+
+## V5 notes
 
 **V5 (November 23, 2026)** is a copy of V4 with a new **Benchmark** tab (`benchmark.html`): a report on the first live run of the AdapterBenchmark sample, with interactive, animated charts. The earlier versions stay in [`../WebSite`](../WebSite/README.md), [`../WebSite_V2`](../WebSite_V2/README.md), [`../WebSite_V3`](../WebSite_V3/README.md) and [`../WebSite_V4`](../WebSite_V4/README.md).
 

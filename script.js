@@ -1,9 +1,13 @@
-// Arandu project site V2: motion layer and interactive views.
+// Arandu project site V2: motion layer and interactive views. V6: Eng / PT-BR text (see tr()).
 // Motion is always on. Animations use transform and opacity only, so the browser can run them
 // on the graphics hardware of any device (with a CPU fallback). The content works without JS.
 document.documentElement.classList.add("js");
 const finePointer = window.matchMedia("(pointer: fine)").matches;
 const small = () => window.innerWidth < 760;
+// V6 language: the PT-BR page (index.pt-br.html) loads this same script with <html lang="pt-BR">.
+const LANG = document.documentElement.lang.toLowerCase().startsWith("pt") ? "pt" : "en";
+const tr = (en, pt) => (LANG === "pt" ? pt : en);
+const LOCALE = tr("en-US", "pt-BR");
 
 /* =================================================================
    Commit data · local main branch of C:/Projects/Arandu, oldest first
@@ -64,25 +68,81 @@ const COMMITS = [
   ["6ac5285", "2026-11-16", "diag", "Add diagnostic-only timing to separate Arandu and provider time", 24, 1090, 26, "Diagnostic builds split each call's time between Arandu and the provider."],
   ["194ab29", "2026-11-16", "diag", "Add AdapterBenchmark diagnostics sample", 170, 14284, 2, "New AdapterBenchmark sample: the same 10 scenarios on each model, exported as CSV and JSON."],
 ];
+// PT-BR explanations, by commit hash (titles stay as the original commit messages).
+const COMMIT_PT = {
+  "0bfb09d": "Cria o projeto Unity e o repositório. É o ponto de partida do Arandu.",
+  "7352cae": "Primeiro conjunto de documentação: arquitetura, decisões e o roadmap do plugin.",
+  "a4c4a33": "Adiciona o README que apresenta o projeto.",
+  "1f85b56": "A partir daqui, todo commit precisa ter um sign-off.",
+  "ee99067": "Refaz os documentos de context engineering que guiam os agentes de código: regras, estado e planejamento.",
+  "0fc6d0a": "Primeiro Arandu.Core: registro de agents, envio de requests e o loop de model/tool, com um test harness offline.",
+  "b7fd6b5": "Atualiza os registros de planejamento de tarefas e de histórico usados no desenvolvimento.",
+  "ad4e4a8": "Adiciona o módulo ModelAdapter e o primeiro adapter de exemplo, para a API do Gemini.",
+  "5ea4c86": "Adiciona o módulo Integration, que conecta o runtime ao Unity: configuração no Inspector, scopes e dispatch.",
+  "32d2d50": "Adiciona o ThroneRoom, a sample jogável: um reinado de 5 dias com um Vizir de IA que propõe éditos por meio de uma tool.",
+  "00f54bb": "Context compaction: faz o request completo caber no orçamento do modelo selecionado.",
+  "3b918a9": "Impede que os metadados de provenance cresçam sem limite, com uma manutenção limitada opcional (opt-in).",
+  "1c30085": "Sessions encerradas podem ser aposentadas com segurança. As regras de mensagem de commit também ficam mais curtas.",
+  "37c5e3b": "O ThroneRoom ganha uma session nova a cada dia e um histórico limitado do reinado.",
+  "8ddcbc3": "Corrige a rolagem do diálogo do Vizir à medida que ele cresce.",
+  "7a4815a": "Deixa mais rápido o processamento limitado de context do plugin.",
+  "33103f4": "Deixa mais rápidos a montagem do context e o transcript do ThroneRoom.",
+  "91d277e": "Melhora o layout do transcript na interface do ThroneRoom.",
+  "41f39fd": "Planeja a próxima rodada de melhorias do plugin e das samples.",
+  "e8752ae": "Alinha os documentos de status e de setup com o produto real.",
+  "78f1ddd": "Os callbacks de dispatch do Unity agora rodam fora do lock da fila.",
+  "467bd31": "O scheduler mantém contagens de workflow por agent em vez de percorrer todas as sessions.",
+  "6c9e114": "Deixa o shutdown do host mais robusto e corrige a posse (ownership) depois de um restore.",
+  "aab89fd": "Retry backoff opcional, com teto e jitter, respeitando o Retry-After.",
+  "8045ee2": "O operation journal pula as varreduras de expiração quando nada está vencendo.",
+  "6860d6f": "Move as ferramentas do Unity Editor para o Unity CLI.",
+  "9ad0dc9": "A descoberta de modelos do Gemini lê todas as páginas do catálogo, dentro de limites explícitos.",
+  "eb6ec79": "O ThroneRoom usa a descoberta paginada de modelos do Gemini.",
+  "a3d6d48": "Setup, receipts e texto mais seguros no ThroneRoom: a API key fica só na memória e o texto do modelo é exibido literalmente.",
+  "bbaad39": "Registra uma linha de base de desempenho local com critérios de aceitação.",
+  "1c2bfc1": "Fecha todas as tarefas revisadas e remove os planos concluídos.",
+  "20a34da": "Debug mode: relatórios limitados e captura em arquivo, compilados só com ARANDU_DIAGNOSTICS.",
+  "58fb485": "Move o Gemini para ExampleAdapters, separado da base do plugin.",
+  "68bd0ed": "Adapter de exemplo do Groq para Chat Completions, com descoberta de modelos e um perfil do GPT-OSS 120B.",
+  "651dbb9": "Planeja uma revisão completa do plugin como um conjunto de tarefas.",
+  "8759b87": "A orquestração opcional em thread pool tira o trabalho do Core da main thread. O WebGL a rejeita.",
+  "412dce8": "Menos trabalho dentro do gate do host quando os requests são admitidos e agendados.",
+  "1db9abc": "Os JSON schemas são compilados uma vez e reutilizados entre execuções e tool calls.",
+  "273d544": "A montagem do context reutiliza medições quando nada mudou.",
+  "3d7c666": "Tabelas de ciclo de vida limitadas: tombstones de requests, rebinding para o mesmo destino e fechamento de epochs antigas.",
+  "ca699bc": "Operações com resultado desconhecido podem ser reconciliadas depois, com uma liberação opcional do mutation gate.",
+  "d932478": "Callbacks do gate mais seguros e um journal durável opcional, gravado (flush) fora do gate.",
+  "ddcd458": "As falhas são classificadas por fase: connector, checkpoint, context, tool ou internal.",
+  "f0eb74f": "Gemini e Groq agora compartilham um único BoundedHttpClient no Arandu.ModelAdapter.",
+  "1f71fe5": "As mutations esperam em ordem de chegada, então requests posteriores não deixam os anteriores sem vez.",
+  "add533c": "Move os registros de operações para o OperationLedger e usa um único snapshot de rollback na montagem do context.",
+  "40de542": "Correções da revisão: identidades de limites estáveis, rollback do dispatch e receipts duráveis.",
+  "b6e1efc": "Simplifica os registros de histórico e o planejamento de tarefas para os agentes de código.",
+  "521863a": "O jogador escolhe Gemini ou Groq no ThroneRoom. Os retries seguem o Retry-After e o tool_use_failed do Groq.",
+  "1915718": "Adiciona um arquivo CLAUDE.md para o agente de código.",
+  "5e62495": "O debug mode agora também registra recovery, flushes do journal e reconciliação.",
+  "6ac5285": "Builds de diagnóstico separam o tempo de cada chamada entre o Arandu e o provedor.",
+  "194ab29": "Nova sample AdapterBenchmark: os mesmos 10 cenários em cada modelo, exportados em CSV e JSON.",
+};
 const AREAS = {
-  core: ["Core runtime", "#c084fc"],
-  adapter: ["Adapters", "#38bdf8"],
-  sample: ["Samples", "#5eead4"],
-  perf: ["Performance", "#60a5fa"],
-  diag: ["Diagnostics", "#f0abfc"],
-  process: ["Docs & process", "#a7a3cc"],
+  core: [tr("Core runtime", "Core runtime"), "#c084fc"],
+  adapter: [tr("Adapters", "Adapters"), "#38bdf8"],
+  sample: [tr("Samples", "Samples"), "#5eead4"],
+  perf: [tr("Performance", "Desempenho"), "#60a5fa"],
+  diag: [tr("Diagnostics", "Diagnóstico"), "#f0abfc"],
+  process: [tr("Docs & process", "Docs e processo"), "#a7a3cc"],
 };
 const DELIVERIES = [
-  ["2026-10-06", "Oct 6 update", "Context engineering and setup"],
-  ["2026-10-13", "Oct 13 update", "First Core runtime"],
-  ["2026-10-20", "Oct 20 update", "Adapter, Gemini and Unity integration"],
-  ["2026-10-27", "Oct 27 update", "ThroneRoom and context management"],
-  ["2026-11-03", "Nov 3 update", "Execution refinement"],
-  ["2026-11-10", "Nov 10 update", "Debug mode, Groq and improvements"],
-  ["2026-11-17", "Since Nov 10", "Performance, reliability and AdapterBenchmark"],
+  ["2026-10-06", tr("Oct 6 update", "Entrega de 6/out"), tr("Context engineering and setup", "Context engineering e setup")],
+  ["2026-10-13", tr("Oct 13 update", "Entrega de 13/out"), tr("First Core runtime", "Primeiro Core runtime")],
+  ["2026-10-20", tr("Oct 20 update", "Entrega de 20/out"), tr("Adapter, Gemini and Unity integration", "Adapter, Gemini e integração com Unity")],
+  ["2026-10-27", tr("Oct 27 update", "Entrega de 27/out"), tr("ThroneRoom and context management", "ThroneRoom e gestão de context")],
+  ["2026-11-03", tr("Nov 3 update", "Entrega de 3/nov"), tr("Execution refinement", "Refinamento da execução")],
+  ["2026-11-10", tr("Nov 10 update", "Entrega de 10/nov"), tr("Debug mode, Groq and improvements", "Debug mode, Groq e melhorias")],
+  ["2026-11-17", tr("Since Nov 10", "Desde 10/nov"), tr("Performance, reliability and AdapterBenchmark", "Desempenho, confiabilidade e AdapterBenchmark")],
 ];
-const fmt = (n) => n.toLocaleString("en-US");
-const fmtDate = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+const fmt = (n) => n.toLocaleString(LOCALE);
+const fmtDate = (iso) => new Date(iso + "T12:00:00").toLocaleDateString(LOCALE, { month: "short", day: "numeric" });
 
 /* ---------- Word mask split for headings ---------- */
 const splitWords = (el) => {
@@ -350,7 +410,14 @@ if (finePointer) {
 }
 
 /* ---------- Core concepts ---------- */
-const concepts = {
+const concepts = LANG === "pt" ? {
+  agent: ["Agent", "Um Agent tem sua própria configuração e suas permissões. Vários Agents independentes podem rodar no mesmo jogo, cada um com Sessions separadas."],
+  session: ["Session", "Uma Session guarda as interações de um Agent, em ordem. Trocar de modelo mantém o histórico permitido; um request de novo Agent começa uma conversa do zero."],
+  skill: ["Skill", "Uma Skill traz instruções de tarefa escritas para um Agent e pode apertar os limites dele. O jogo pode trocar a Skill entre requests quando a situação muda."],
+  tool: ["Tool", "Uma Tool expõe uma operação C# específica. O modelo só pode propor uma tool call; o jogo valida e aplica o efeito."],
+  context: ["Context", "O Context fornece ao Agent informações autorizadas do jogo, como o estado atual ou fatos que o jogador já desbloqueou. O jogo decide o que cada Agent pode ver."],
+  adapter: ["Adapter", "Um Adapter conecta o Arandu a um backend de modelo. Gemini e Groq são exemplos fornecidos e compartilham um cliente HTTP limitado; quem desenvolve pode derivar de ModelAdapterBase para qualquer outro backend."],
+} : {
   agent: ["Agent", "An agent has its own configuration and permissions. Several independent agents can run in the same game, each with separate sessions."],
   session: ["Session", "A session keeps the ordered interactions of an agent. Switching models keeps the permitted history; a new-agent request starts a fresh conversation."],
   skill: ["Skill", "A skill provides authored task instructions for an agent and can narrow its limits. The game can switch the skill between requests when the situation changes."],
@@ -418,10 +485,10 @@ const buildCommitView = () => {
   const del = COMMITS.reduce((s, c) => s + c[6], 0);
   const days = new Set(COMMITS.map((c) => c[1])).size;
   document.getElementById("cstats").innerHTML = `
-    <div class="cstat"><b data-count="${COMMITS.length}">0</b><span>commits on main</span></div>
-    <div class="cstat"><b data-count="${days}">0</b><span>active days, Sep 29 to Nov 16</span></div>
-    <div class="cstat"><b class="add">+<span data-count="${ins}">0</span></b><span>lines added</span></div>
-    <div class="cstat"><b class="del">−<span data-count="${del}">0</span></b><span>lines removed</span></div>`;
+    <div class="cstat"><b data-count="${COMMITS.length}">0</b><span>${tr("commits on main", "commits na main")}</span></div>
+    <div class="cstat"><b data-count="${days}">0</b><span>${tr("active days, Sep 29 to Nov 16", "dias ativos, de 29/set a 16/nov")}</span></div>
+    <div class="cstat"><b class="add">+<span data-count="${ins}">0</span></b><span>${tr("lines added", "linhas adicionadas")}</span></div>
+    <div class="cstat"><b class="del">−<span data-count="${del}">0</span></b><span>${tr("lines removed", "linhas removidas")}</span></div>`;
 
   // Activity chart: one column per day
   const start = new Date("2026-09-29T12:00:00"), end = new Date("2026-11-16T12:00:00");
@@ -441,7 +508,7 @@ const buildCommitView = () => {
     col.className = "aday" + (list.length ? " has" : "") + (deliveryDays.has(iso) ? " mark" : "");
     col.style.setProperty("--k", k);
     col.innerHTML = `<i style="--h:${list.length ? Math.max(8, list.length / maxDay * 100) : 3}%"></i>`;
-    const label = `${fmtDate(iso)} · ${list.length} commit${list.length === 1 ? "" : "s"}${deliveryDays.has(iso) ? " · class update" : ""}`;
+    const label = `${fmtDate(iso)} · ${list.length} commit${list.length === 1 ? "" : "s"}${deliveryDays.has(iso) ? tr(" · class update", " · entrega em aula") : ""}`;
     col.addEventListener("pointerenter", () => {
       tip.textContent = label;
       document.querySelectorAll(".crow").forEach((r) => r.classList.toggle("hl-row", r.dataset.date === iso));
@@ -458,14 +525,14 @@ const buildCommitView = () => {
       axis.appendChild(s);
     }
   }
-  act.addEventListener("pointerleave", () => { tip.textContent = "Hover a day"; });
+  act.addEventListener("pointerleave", () => { tip.textContent = tr("Hover a day", "Passe o mouse sobre um dia"); });
   new IntersectionObserver(([e], o) => { if (e.isIntersecting) { act.classList.add("go"); o.disconnect(); } }, { threshold: .3 }).observe(act);
 
   // Area filters
   const counts = {};
   COMMITS.forEach((c) => { counts[c[2]] = (counts[c[2]] || 0) + 1; });
   const cf = document.getElementById("cfilters");
-  cf.innerHTML = `<button class="cchip active" data-cat="all">All <em>${COMMITS.length}</em></button>` +
+  cf.innerHTML = `<button class="cchip active" data-cat="all">${tr("All", "Todos")} <em>${COMMITS.length}</em></button>` +
     Object.entries(AREAS).map(([k, [name, color]]) => `<button class="cchip" data-cat="${k}" style="--c:${color}">${name} <em>${counts[k] || 0}</em></button>`).join("");
 
   // Grouped log
@@ -499,11 +566,11 @@ const buildCommitView = () => {
           <span class="chash">${hash}</span>
           <span class="cdate">${fmtDate(date)}</span>
           <span class="ctitle">${title}</span>
-          <span class="cside"><span class="ccat">${areaName}</span><span class="cchurn" title="+${fmt(a)} / −${fmt(d)} lines"><span class="a" style="--a:${aw}%"></span><span class="d" style="--d:${dw}%"></span></span></span>
+          <span class="cside"><span class="ccat">${areaName}</span><span class="cchurn" title="+${fmt(a)} / −${fmt(d)} ${tr("lines", "linhas")}"><span class="a" style="--a:${aw}%"></span><span class="d" style="--d:${dw}%"></span></span></span>
         </button>
         <div class="cmore"><div>
-          <p>${text}</p>
-          <div class="cmeta"><span>${date}</span><span>${files} file${files === 1 ? "" : "s"} changed</span><span class="plus">+${fmt(a)}</span><span class="minus">−${fmt(d)}</span></div>
+          <p>${tr(text, COMMIT_PT[hash] || text)}</p>
+          <div class="cmeta"><span>${date}</span><span>${tr(`${files} file${files === 1 ? "" : "s"} changed`, `${files} arquivo${files === 1 ? "" : "s"} alterado${files === 1 ? "" : "s"}`)}</span><span class="plus">+${fmt(a)}</span><span class="minus">−${fmt(d)}</span></div>
         </div></div>`;
       const btn = row.querySelector(".cbtn");
       btn.addEventListener("click", () => {

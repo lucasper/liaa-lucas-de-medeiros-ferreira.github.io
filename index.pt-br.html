@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arandu · Agentes de IA para Unity</title>
+  <meta name="description" content="Arandu é um plugin reutilizável para Unity de agentes de jogo guiados por modelos. Site do projeto da disciplina Laboratório de IA Aplicada, Mestrado em Engenharia de Software, UNIPAMPA.">
+  <meta name="theme-color" content="#07061a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="benchmark.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c084fc'/%3E%3Cstop offset='1' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230d0b26'/%3E%3Cpath d='M32 12 50 52H40l-8-19-8 19H14z' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="alternate" hreflang="en" data-lang="en" href="index.html">
+  <link rel="alternate" hreflang="pt-BR" data-lang="pt-br" href="index.pt-br.html">
+  <script src="lang.js"></script>
+</head>
+<body>
+
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+<div class="cursor-glow" aria-hidden="true"></div>
+<div class="bg-orbs" aria-hidden="true"><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span></div>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<header class="topbar" id="top">
+  <a class="brand" href="#top" aria-label="Início do Arandu">
+    <span class="brand-mark" aria-hidden="true">A</span>
+    <span>Arandu</span>
+  </a>
+  <div class="lang-switch" role="group" aria-label="Language / Idioma">
+    <a href="index.html" data-lang="en" lang="en" hreflang="en">Eng</a>
+    <a href="index.pt-br.html" data-lang="pt-br" lang="pt-BR" hreflang="pt-BR" class="active" aria-current="true">PT-BR</a>
+  </div>
+  <button class="menu-toggle" aria-expanded="false" aria-controls="nav" aria-label="Abrir menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="nav" class="nav">
+    <a href="#trailer">Trailer</a>
+    <a href="#context">Contexto</a>
+    <a href="#problem">Problema</a>
+    <a href="#solution">Solução</a>
+    <a href="#samples">Samples</a>
+    <a href="#whatsnew">Novidades</a>
+    <a href="#progress">Progresso</a>
+    <a href="#status">Status</a>
+    <a href="#roadmap">Cronograma</a>
+    <a href="benchmark.pt-br.html" class="nav-tab">Benchmark</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <canvas id="net" class="hero-net" aria-hidden="true"></canvas>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow anim-in" style="--d:0">Laboratório de IA Aplicada · Mestrado em Engenharia de Software · UNIPAMPA</p>
+      <h1 class="anim-in" style="--d:1">Agentes de IA reutilizáveis<br>para <span class="grad glitch" data-text="jogos Unity">jogos Unity</span></h1>
+      <p class="lead anim-in" style="--d:2">O Arandu é um plugin para Unity que facilita colocar agentes de IA num jogo, enquanto o jogo continua no controle.</p>
+      <p class="motto anim-in" style="--d:3"><span class="typed" data-words="O modelo propõe.|O jogo decide.|Todo request tem limites.|Todo efeito tem um receipt."></span><span class="caret" aria-hidden="true"></span></p>
+      <div class="hero-cta anim-in" style="--d:4">
+        <a class="btn btn-primary magnetic" href="#trailer"><span>Assista ao trailer</span></a>
+        <a class="btn btn-ghost magnetic" href="#solution"><span>Veja como funciona</span></a>
+        <a class="btn btn-ghost magnetic" href="#whatsnew"><span>Novidades da semana</span></a>
+        <a class="btn btn-ghost magnetic" href="benchmark.pt-br.html"><span>Relatório do benchmark</span></a>
+      </div>
+      <p class="author anim-in" style="--d:5">Lucas de Medeiros Ferreira · 2º semestre de 2026</p>
+    </div>
+
+    <div class="terminal anim-in tilt" style="--d:3" aria-label="Fluxo ilustrativo de um request">
+      <div class="term-head">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="term-title">arandu · um request de agent</span>
+        <span class="term-live">demo ao vivo</span>
+      </div>
+      <ol class="term-body" id="term">
+        <li data-tag="game"><span class="tag">Jogo</span> envia um request a um agent</li>
+        <li data-tag="arandu"><span class="tag">Arandu</span> monta o request: agent, skill, context autorizado</li>
+        <li data-tag="model"><span class="tag">Modelo</span> responde e <em>propõe</em> uma tool call</li>
+        <li data-tag="game"><span class="tag">Jogo</span> valida a proposta e aplica o efeito</li>
+        <li data-tag="arandu"><span class="tag">Arandu</span> devolve o resultado e um receipt dos efeitos conhecidos</li>
+      </ol>
+      <div class="term-foot"><span class="term-bar"><i></i></span><span class="term-note">Fluxo ilustrativo, baseado na arquitetura do plugin.</span></div>
+    </div>
+  </div>
+
+  <div class="wrap stats">
+    <div class="stat reveal"><b data-count="4">0</b><span>assemblies do plugin<br>Core · ModelAdapter · Integration · Editor</span></div>
+    <div class="stat reveal"><b data-count="2">0</b><span>adapters de exemplo<br>Gemini e Groq</span></div>
+    <div class="stat reveal"><b data-count="2">0</b><span>samples<br>ThroneRoom e AdapterBenchmark</span></div>
+    <div class="stat reveal"><b data-count="322">0</b><span>testes de Edit Mode passando<br>último registro do plugin, 16/nov</span></div>
+  </div>
+
+  <a class="scroll-cue" href="#trailer" aria-label="Rolar até o conteúdo"><span></span></a>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Unity 6</span><span>C# · netstandard2.1</span><span>Gemini</span><span>Groq</span><span>tool calls</span><span>skills</span><span>context compaction</span><span>retry · backoff · jitter</span><span>receipts</span><span>debug mode</span><span>ARANDU_DIAGNOSTICS</span><span>AdapterBenchmark</span>
+    <span>Unity 6</span><span>C# · netstandard2.1</span><span>Gemini</span><span>Groq</span><span>tool calls</span><span>skills</span><span>context compaction</span><span>retry · backoff · jitter</span><span>receipts</span><span>debug mode</span><span>ARANDU_DIAGNOSTICS</span><span>AdapterBenchmark</span>
+  </div>
+  <div class="marquee-track rev">
+    <span>Agent</span><span>Session</span><span>Skill</span><span>Tool</span><span>Context</span><span>Adapter</span><span>bounded</span><span>inspectable</span><span>reusable</span><span>53 commits</span><span>ThroneRoom</span><span>Editor monitor</span>
+    <span>Agent</span><span>Session</span><span>Skill</span><span>Tool</span><span>Context</span><span>Adapter</span><span>bounded</span><span>inspectable</span><span>reusable</span><span>53 commits</span><span>ThroneRoom</span><span>Editor monitor</span>
+  </div>
+</div>
+
+<!-- ============ TRAILER ============ -->
+<section id="trailer" class="section trailer-section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>▶</span> Trailer</p>
+      <h2>O Arandu em 90 segundos</h2>
+      <p class="sub">O que são agentes de IA, por que colocar um num jogo é difícil e como o Arandu deixa isso fácil. Depois, uma olhada rápida nas partes do plugin, nas duas samples e no progresso até aqui.</p>
+    </header>
+
+    <div class="trailer-frame reveal">
+      <video class="trailer-video" controls preload="metadata" playsinline poster="assets/arandu-trailer-poster-pt-br.jpg">
+        <source src="assets/arandu-trailer-pt-br.mp4" type="video/mp4">
+        Seu navegador não consegue reproduzir este vídeo. <a href="assets/arandu-trailer-pt-br.mp4">Baixe o trailer (MP4)</a>.
+      </video>
+    </div>
+    <p class="caption reveal">Narração em português do Brasil com legendas. Vídeo feito com Remotion; narração gerada localmente com Qwen3-TTS. Troque para Eng no topo da página para ver a versão em inglês.</p>
+  </div>
+</section>
+
+<!-- ============ CONTEXT ============ -->
+<section id="context" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>01</span> Contexto</p>
+      <h2>Os modelos de linguagem estão chegando aos jogos</h2>
+      <p class="sub">Personagens que respondem, conselheiros que raciocinam sobre o estado do jogo, missões que reagem ao jogador. Os grandes modelos de linguagem tornam isso possível. Um modelo que conversa, raciocina e age dentro de um jogo é chamado de <b>agente de IA</b>.</p>
+    </header>
+
+    <div class="grid-3 stagger">
+      <article class="card spot reveal">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H8l-4 4z" /></svg></div>
+        <h3>Novos tipos de gameplay</h3>
+        <p>Agentes guiados por modelos podem conversar, explicar escolhas e sugerir ações dentro do jogo, em vez de seguir árvores de diálogo fixas.</p>
+      </article>
+      <article class="card spot reveal">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 21 8v8l-9 5-9-5V8z" /><path d="M3 8l9 5 9-5M12 13v8" /></svg></div>
+        <h3>Unity como plataforma</h3>
+        <p>O Arandu é feito para o Unity 6 (6000.3.16f1). O plugin fica em assemblies C# que qualquer projeto Unity pode referenciar.</p>
+      </article>
+      <article class="card spot reveal">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></svg></div>
+        <h3>Uma mudança de rumo na pesquisa</h3>
+        <p>O projeto começou como uma comparação de latência entre LLMs. Depois passou para um objetivo mais amplo: infraestrutura reutilizável para agentes em jogos Unity.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section id="problem" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>02</span> Problema</p>
+      <h2>Colocar um agente de IA num jogo é difícil</h2>
+      <p class="sub">É preciso conectar um provedor de modelo, passar para ele o estado do jogo e tratar cada resposta que ele dá. Uma integração rápida, que chama a API do provedor direto do código de gameplay, funciona numa demo, mas os problemas crescem junto com o projeto.</p>
+    </header>
+
+    <div class="problems stagger">
+      <article class="problem spot reveal">
+        <span class="pnum">P1</span>
+        <h3>Lock-in de provedor</h3>
+        <p>Chamadas HTTP, formatos JSON e manias de cada modelo acabam misturados com o gameplay. Trocar de provedor ou de modelo significa reescrever código do jogo.</p>
+      </article>
+      <article class="problem spot reveal">
+        <span class="pnum">P2</span>
+        <h3>Efeitos inseguros</h3>
+        <p>Se o modelo pode mudar o estado do jogo diretamente, uma resposta errada ou inventada pode quebrar regras, gastar recursos ou corromper o progresso.</p>
+      </article>
+      <article class="problem spot reveal">
+        <span class="pnum">P3</span>
+        <h3>Sem limites</h3>
+        <p>Sem orçamentos explícitos, um request pode entrar em loop de tool calls, inchar o context ou demorar demais. Tempo, chamadas, context e custo precisam de limites.</p>
+      </article>
+      <article class="problem spot reveal">
+        <span class="pnum">P4</span>
+        <h3>Difícil de inspecionar</h3>
+        <p>Quando algo falha, quem desenvolve precisa saber o que foi pedido, o que o modelo propôs, o que foi aplicado e por que parou.</p>
+      </article>
+    </div>
+
+    <blockquote class="question reveal">
+      <span>Pergunta norteadora</span>
+      Como um jogo Unity pode usar agentes guiados por modelos de um jeito <b>reutilizável</b>, <b>limitado</b> e <b>inspecionável</b>, mantendo autoridade total sobre o próprio estado?
+    </blockquote>
+  </div>
+</section>
+
+<!-- ============ SOLUTION ============ -->
+<section id="solution" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>03</span> Solução proposta</p>
+      <h2>Um plugin que separa orquestração, provedores e gameplay</h2>
+      <p class="sub">O Arandu coordena um request finito entre o jogo e um modelo. Os serviços do jogo continuam no comando: eles validam e aplicam cada ação que o modelo propõe.</p>
+    </header>
+
+    <div class="loop reveal" role="img" aria-label="Loop do agent: request do jogo, agent com skill e context, resposta do modelo ou proposta de tool, tool registrada com autoridade do jogo, observação e então próximo turno ou resultado">
+      <div class="loop-track" aria-hidden="true"><i class="pulse"></i></div>
+      <div class="node n-game"><small>1</small>Request do jogo</div>
+      <div class="node n-arandu"><small>2</small>Agent + skill + context</div>
+      <div class="node n-model"><small>3</small>Resposta do modelo ou proposta de tool</div>
+      <div class="node n-game"><small>4</small>Tool registrada + autoridade do jogo</div>
+      <div class="node n-arandu"><small>5</small>Observação → próximo turno ou resultado</div>
+    </div>
+    <p class="caption reveal">O modelo propõe. O código do jogo, que tem a autoridade, decide. Um cancelamento não desfaz uma ação já aplicada.</p>
+
+    <div class="arch">
+      <div class="arch-col reveal">
+        <h3 class="arch-title">Base do plugin</h3>
+        <div class="module m-core"><b>Arandu.Core</b><span>Runtime portátil de agents: requests, sessions, limites, tool loop, resultados, receipts e reconciliação de operações.</span></div>
+        <div class="module m-adapter"><b>Arandu.ModelAdapter</b><span>Base comum para conectar qualquer backend de modelo, agora com um <code>BoundedHttpClient</code> compartilhado opcional. Sem dependência de fornecedor.</span></div>
+        <div class="module m-integration"><b>Arandu.Integration</b><span>Ponte com o Unity: configuração no Inspector, registro de tools e skills em C#, ciclos de vida por scope e orquestração opcional em thread pool.</span></div>
+        <div class="module m-editor"><b>Arandu.Editor</b><span>Monitor só do Editor para validar a configuração e inspecionar requests, receipts e tempos.</span></div>
+      </div>
+      <div class="arch-col reveal">
+        <h3 class="arch-title">Construídos por cima, mantidos à parte</h3>
+        <div class="module m-example"><b>ExampleAdapters / Gemini</b><span>Seleção de modelo, descoberta paginada e limitada de modelos e Interactions sem estado.</span></div>
+        <div class="module m-example"><b>ExampleAdapters / Groq</b><span>Chat Completions e listagem de modelos, com perfis do GPT-OSS 120B e 20B.</span></div>
+        <div class="module m-sample"><b>Samples / ThroneRoom</b><span>Sample de gameplay. Agora o jogador escolhe Gemini ou Groq na tela de setup.</span></div>
+        <div class="module m-sample m-new"><b>Samples / AdapterBenchmark</b><span>Nova sample só de diagnóstico, que roda os mesmos cenários em cada adapter e exporta CSV e JSON.</span></div>
+        <p class="arch-note">A base nunca depende dos exemplos. Quem desenvolve pode escrever seu próprio adapter para um motor embarcado, um serviço local ou qualquer API externa.</p>
+      </div>
+    </div>
+
+    <h3 class="minor-title reveal">Conceitos principais</h3>
+    <div class="concepts reveal" role="tablist">
+      <button class="concept active" data-key="agent" role="tab">Agent</button>
+      <button class="concept" data-key="session" role="tab">Session</button>
+      <button class="concept" data-key="skill" role="tab">Skill</button>
+      <button class="concept" data-key="tool" role="tab">Tool</button>
+      <button class="concept" data-key="context" role="tab">Context</button>
+      <button class="concept" data-key="adapter" role="tab">Adapter</button>
+    </div>
+    <div class="concept-panel reveal" id="concept-panel" aria-live="polite">
+      <h4>Agent</h4>
+      <p>Um Agent tem sua própria configuração e suas permissões. Vários Agents independentes podem rodar no mesmo jogo, cada um com Sessions separadas.</p>
+    </div>
+
+    <h3 class="minor-title reveal">O que mantém tudo limitado e inspecionável</h3>
+    <div class="grid-4 stagger">
+      <div class="feat spot reveal"><h4>Limites explícitos</h4><p>Orçamentos de tempo, chamadas, context e custo por request. As skills podem apertá-los ainda mais.</p></div>
+      <div class="feat spot reveal"><h4>Context compaction</h4><p>Ligada por padrão. Faz o request completo caber no orçamento do modelo selecionado.</p></div>
+      <div class="feat spot reveal"><h4>Ritmo de retry</h4><p>Retry fixo por padrão, com backoff e jitter opcionais e suporte a <code>Retry-After</code>.</p></div>
+      <div class="feat spot reveal"><h4>Debug mode</h4><p>Build de diagnóstico separado, com tempos de cada request, relatórios de falha e captura em arquivo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SAMPLES ============ -->
+<section id="samples" class="section section-deep">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>04</span> Samples</p>
+      <h2>Duas samples, prontas para abrir e testar</h2>
+      <p class="sub">Uma <b>sample</b> é um pequeno projeto de exemplo que vem junto com o plugin, pronto para abrir e testar. O ThroneRoom mostra o plugin dentro de um loop de gameplay de verdade. O AdapterBenchmark roda os mesmos cenários em cada modelo e exporta os resultados.</p>
+    </header>
+
+    <div class="sample-tabs reveal" role="tablist">
+      <button class="stab active" data-tab="throne" role="tab" aria-selected="true">ThroneRoom</button>
+      <button class="stab" data-tab="bench" role="tab" aria-selected="false">AdapterBenchmark <em>novo</em></button>
+      <span class="stab-ink" aria-hidden="true"></span>
+    </div>
+
+    <!-- ThroneRoom -->
+    <div class="spanel active" id="tab-throne">
+      <div class="throne-head">
+        <h3>Governe um reino com um conselheiro ardiloso</h3>
+        <p>Você é o Monarca num reinado de 5 dias. Cada dia traz uma crise, sorteada entre 20 crises escritas, e um conselheiro de IA que tenta te enganar.</p>
+        <div class="badges">
+          <span class="badge badge-ok">✓ Jogado e testado pelo aluno com as APIs reais do Gemini e do Groq</span>
+          <span class="badge">Gemini ou Groq, escolhido na tela de setup</span>
+        </div>
+      </div>
+
+      <div class="throne">
+        <div class="throne-steps">
+          <div class="tstep"><span class="tday">Conselho de abertura</span><p>O Grão-Vizir Malakor apresenta a petição de um jeito tendencioso e propõe um rascunho de Édito Real por meio de uma tool.</p></div>
+          <div class="tstep"><span class="tday">Enviar batedores reais</span><p>Pague ouro para revelar fatos verificados. O context muda, a skill troca e Malakor propõe uma solução honesta.</p></div>
+          <div class="tstep"><span class="tday">Sala de audiências</span><p>Questione o Vizir num chat livre. A partir do segundo dia, ele também pode ler o histórico do reinado.</p></div>
+          <div class="tstep"><span class="tday">Sua decisão</span><p><b>Assine</b> o édito, <b>vete</b> o rascunho ou <b>ignore</b> a crise. Quem aplica os custos e os efeitos é o jogo, nunca o modelo.</p></div>
+        </div>
+
+        <div class="kingdom" aria-label="Recursos iniciais do reino">
+          <h3>Reino inicial</h3>
+          <div class="gold"><span>Tesouro Real</span><b><span data-count="300">0</span> de ouro</b></div>
+          <div class="pillar"><span>Felicidade do povo</span><div class="bar"><i style="--v:50%"></i></div><em>50</em></div>
+          <div class="pillar"><span>Lealdade da nobreza</span><div class="bar"><i style="--v:50%"></i></div><em>50</em></div>
+          <div class="pillar"><span>Força militar</span><div class="bar"><i style="--v:50%"></i></div><em>50</em></div>
+          <p class="rule">Qualquer pilar em 0 encerra o reinado. Sobreviva ao dia 5 com os três acima de 0 para vencer.</p>
+          <p class="rule faint">Valores das regras da sample. O painel é uma ilustração, não uma captura de tela.</p>
+        </div>
+      </div>
+
+      <div class="safety">
+        <div><b>Chaves só na memória</b><span>Cada adapter tem sua própria chave, válida só durante a sessão. Apenas escolhas não secretas são salvas.</span></div>
+        <div><b>Só modelos verificados</b><span>Modelos sem um perfil verificado aparecem como <code>[Unavailable]</code>.</span></div>
+        <div><b>Retry nos limites do provedor</b><span>Até 3 retries em 90 s, seguindo o <code>Retry-After</code> e o <code>tool_use_failed</code> do Groq.</span></div>
+      </div>
+    </div>
+
+    <!-- AdapterBenchmark -->
+    <div class="spanel" id="tab-bench">
+      <div class="throne-head">
+        <h3>Mesmos cenários, todos os modelos, dados comparáveis</h3>
+        <p>O benchmark roda adapter × modelo × cenário × repetição. Cada repetição usa um scope e uma session novos, e cada turno é conferido contra uma expectativa concreta.</p>
+        <div class="badges">
+          <span class="badge">Só com <code>ARANDU_DIAGNOSTICS</code></span>
+          <span class="badge">Só testes offline · nenhuma execução ao vivo registrada ainda</span>
+        </div>
+      </div>
+
+      <div class="bench">
+        <div class="pipeline" aria-label="Pipeline do benchmark">
+          <div class="pstage"><b>Escolher</b><span>adapters e modelos</span></div>
+          <div class="pstage"><b>Rodar</b><span>10 cenários × repetições</span></div>
+          <div class="pstage"><b>Capturar</b><span>tempos do debug mode</span></div>
+          <div class="pstage"><b>Exportar</b><span>CSV · JSON · JSONL</span></div>
+        </div>
+
+        <div class="scenarios">
+          <span>PlainText</span><span>LongInput</span><span>StructuredOutput</span><span>SingleReadTool</span><span>ToolChain</span><span>MutationTool</span><span>SkillSwitch</span><span>ContextPressure</span><span>MultiTurnSession</span><span>Cancellation</span>
+        </div>
+
+        <table class="mtable btable">
+          <thead><tr><th>Adapter</th><th>Modelos verificados</th><th>Atraso padrão</th></tr></thead>
+          <tbody>
+            <tr><td>Gemini</td><td><code>gemini-3.5-flash-lite</code></td><td>4000 ms</td></tr>
+            <tr><td>Groq</td><td><code>openai/gpt-oss-120b</code>, <code>openai/gpt-oss-20b</code></td><td>2500 ms</td></tr>
+          </tbody>
+        </table>
+        <p class="note">As métricas incluem o tempo total no cliente, retries, contagem de tools, context compaction e o novo tempo por dispatch, que separa o tempo do Arandu do tempo do provedor. Um adapter novo só precisa implementar <code>IBenchmarkAdapter</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHAT'S NEW ============ -->
+<section id="whatsnew" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>05</span> Novidades</p>
+      <h2>19 commits desde a última atualização</h2>
+      <p class="sub">De 11 a 16 de novembro, depois do commit <code>68bd0ed</code>, até o HEAD <code>194ab29</code>. Agrupados em quatro frentes.</p>
+    </header>
+
+    <div class="commit-strip reveal" aria-label="Commits por dia">
+      <div class="cday"><b data-count="1">0</b><span>11/nov</span><i style="--h:8%"></i></div>
+      <div class="cday"><b data-count="13">0</b><span>14/nov</span><i style="--h:100%"></i></div>
+      <div class="cday"><b data-count="3">0</b><span>15/nov</span><i style="--h:24%"></i></div>
+      <div class="cday"><b data-count="2">0</b><span>16/nov</span><i style="--h:16%"></i></div>
+    </div>
+
+    <div class="fronts stagger">
+      <article class="front spot reveal f-perf">
+        <div class="front-head"><span class="front-num">4</span><h3>Desempenho</h3></div>
+        <ul>
+          <li>Orquestração opcional em thread pool, rejeitada no WebGL</li>
+          <li>Admissão no gate e agendamento mais rápidos</li>
+          <li>JSON schemas compilados uma vez e reutilizados</li>
+          <li>Medições de context reutilizadas quando nada mudou</li>
+        </ul>
+        <div class="front-metric">
+          <span>Pior frame, sizer + submit (Play Mode local)</span>
+          <div class="mrow"><em>padrão</em><div class="track"><i class="old" style="--w:100%"></i></div><b>2.560 ms</b></div>
+          <div class="mrow"><em>thread pool</em><div class="track"><i class="new" style="--w:7%"></i></div><b>0.175 ms</b></div>
+        </div>
+      </article>
+
+      <article class="front spot reveal f-rel">
+        <div class="front-head"><span class="front-num">7</span><h3>Confiabilidade</h3></div>
+        <ul>
+          <li>Reconciliação de operações não resolvidas depois da janela</li>
+          <li>Fronteira de journal durável, com flush fora do gate</li>
+          <li>Falhas classificadas por fase: connector, checkpoint, context, tool, internal</li>
+          <li>Fila de mutations justa, por ordem de chegada</li>
+          <li>Retenção de tombstones, rebinding e fechamento de epochs</li>
+          <li><code>OperationLedger</code> extraído; correções da revisão aplicadas</li>
+        </ul>
+      </article>
+
+      <article class="front spot reveal f-adapt">
+        <div class="front-head"><span class="front-num">2</span><h3>Adapters</h3></div>
+        <ul>
+          <li><code>BoundedHttpClient</code> compartilhado entre Gemini e Groq</li>
+          <li>Groq selecionável no ThroneRoom</li>
+          <li>GPT-OSS 120B e 20B com reasoning effort baixo</li>
+          <li>Retry com <code>Retry-After</code> e com o <code>tool_use_failed</code> do Groq</li>
+        </ul>
+      </article>
+
+      <article class="front spot reveal f-diag">
+        <div class="front-head"><span class="front-num">3</span><h3>Diagnóstico</h3></div>
+        <ul>
+          <li>O debug mode agora cobre recovery, journal e reconciliação</li>
+          <li>Tempos só de diagnóstico separam o tempo do Arandu do tempo do provedor</li>
+          <li>Sample AdapterBenchmark com exportação em CSV e JSON</li>
+        </ul>
+      </article>
+    </div>
+    <p class="note reveal">Mais 3 commits de processo: planos de tarefas de revisão, context engineering refeito para histórico e planejamento de tarefas, e um <code>CLAUDE.md</code> para o agente. O tempo de frame é uma medição local, não um resultado em build de jogador ou em dispositivo.</p>
+  </div>
+</section>
+
+<!-- ============ PROGRESS ============ -->
+<section id="progress" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>06</span> Progresso</p>
+      <h2>Como o projeto evoluiu ao longo do semestre</h2>
+      <p class="sub">Veja o semestre por entrega, como foi apresentado em aula, ou commit a commit, com datas, tamanho e uma explicação curta.</p>
+    </header>
+
+    <div class="view-switch reveal" role="tablist" aria-label="Visualização do progresso">
+      <button class="vbtn active" data-view="deliveries" role="tab" aria-selected="true">Por entrega</button>
+      <button class="vbtn" data-view="commits" role="tab" aria-selected="false">Por commit</button>
+      <span class="vink" aria-hidden="true"></span>
+    </div>
+
+    <!-- View: commits (built by script.js from the commit list) -->
+    <div class="pview" id="view-commits">
+      <div class="cstats" id="cstats"></div>
+      <div class="activity-wrap">
+        <div class="activity-head"><h3>Atividade de commits</h3><span id="act-tip" class="act-tip">Passe o mouse sobre um dia</span></div>
+        <div class="activity" id="activity" aria-label="Commits por dia de 29 de setembro a 16 de novembro"></div>
+        <div class="activity-axis" id="activity-axis"></div>
+      </div>
+      <div class="filters cfilters" role="group" aria-label="Filtrar commits por área" id="cfilters"></div>
+      <div class="glog" id="glog"></div>
+      <p class="note">Commits da branch local <code>main</code> do repositório do Arandu, de <code>0bfb09d</code> (29/set) a <code>194ab29</code> (16/nov). O tamanho é a soma de linhas adicionadas e removidas. As explicações resumem cada mensagem de commit; um commit, sozinho, não prova que os testes rodaram.</p>
+    </div>
+
+    <!-- View: deliveries -->
+    <div class="pview active" id="view-deliveries">
+    <div class="filters reveal" role="group" aria-label="Filtrar linha do tempo">
+      <button class="chip active" data-filter="all">Todas</button>
+      <button class="chip" data-filter="design">Design</button>
+      <button class="chip" data-filter="build">Implementação</button>
+      <button class="chip" data-filter="quality">Qualidade</button>
+    </div>
+
+    <ol class="timeline">
+      <span class="tl-line" aria-hidden="true"><i></i></span>
+      <li class="tl reveal" data-cat="design">
+        <div class="tl-date">6/out</div>
+        <details class="tl-card">
+          <summary><span class="pill p-design">Design</span><h3>Context engineering e setup do projeto</h3></summary>
+          <ul>
+            <li>Projeto Unity e repositório configurados.</li>
+            <li>Documentos de arquitetura, decisões, regras, estado e planejamento escritos para o context engineering.</li>
+            <li>Plugin dividido em exatamente quatro assemblies: Core, ModelAdapter, Integration e Editor.</li>
+            <li>Ainda sem código do plugin: a documentação foi a entrega desta etapa.</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="build">
+        <div class="tl-date">13/out</div>
+        <details class="tl-card">
+          <summary><span class="pill p-build">Implementação</span><h3>Primeiro Core runtime</h3></summary>
+          <ul>
+            <li><code>Arandu.Core</code> virou o primeiro assembly implementado.</li>
+            <li>Registro de agents, envio de requests e o loop de model/tool.</li>
+            <li>Harness offline com respostas roteirizadas: um teste de mutation transforma um saldo de 100 em 90.</li>
+            <li>74 métodos de teste passaram num runner portátil local (12/out).</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="build">
+        <div class="tl-date">20/out</div>
+        <details class="tl-card">
+          <summary><span class="pill p-build">Implementação</span><h3>Model adapter, Gemini e integração com Unity</h3></summary>
+          <ul>
+            <li>ModelAdapter com a API do Gemini e o módulo Integration para o Unity.</li>
+            <li>Ferramentas mínimas de Editor disponíveis.</li>
+            <li>110 testes únicos de Edit Mode e 14 cenários de Play Mode passaram, com respostas simuladas.</li>
+            <li>Código gerenciado compilado para Windows e Android.</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="build">
+        <div class="tl-date">27/out</div>
+        <details class="tl-card">
+          <summary><span class="pill p-build">Implementação</span><h3>Sample ThroneRoom e gestão de context</h3></summary>
+          <ul>
+            <li>Sample jogável ThroneRoom adicionada.</li>
+            <li>Plugin: context compaction e resumos limitados.</li>
+            <li>ThroneRoom: uma session nova a cada dia e um histórico limitado do reinado.</li>
+            <li>Melhorias de interface na sample.</li>
+            <li>Plugin: 204 testes de Edit Mode e 22 de Play Mode passaram (24/out). Sample: 16 e 22 (25/out).</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="quality">
+        <div class="tl-date">3/nov</div>
+        <details class="tl-card">
+          <summary><span class="pill p-quality">Qualidade</span><h3>Refinamento da execução</h3></summary>
+          <ul>
+            <li>Dispatcher tirado de dentro do lock da fila.</li>
+            <li>Contadores por agent no scheduler.</li>
+            <li>Estado e shutdown do host mais robustos.</li>
+            <li>212 testes de Edit Mode e 39 de Play Mode do Integration passaram (2/nov).</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl reveal" data-cat="quality">
+        <div class="tl-date">10/nov</div>
+        <details class="tl-card">
+          <summary><span class="pill p-quality">Qualidade</span><h3>Debug mode, adapter do Groq e melhorias</h3></summary>
+          <ul>
+            <li><b>Debug mode</b>, compilado só com <code>ARANDU_DIAGNOSTICS</code>: relatório JSON limitado e captura contínua em JSON Lines.</li>
+            <li><b>Adapter do Groq</b> para Chat Completions e listagem de modelos, com um perfil do GPT-OSS 120B.</li>
+            <li>Retry backoff opcional com teto e jitter; menos varreduras no operation journal.</li>
+            <li>Descoberta paginada de modelos do Gemini; setup do ThroneRoom mais seguro.</li>
+            <li>11 commits de 4/nov a 10/nov. Último registro: 264 testes de Edit Mode.</li>
+            <li>Depois, o aluno jogou o ThroneRoom com a API real do Gemini.</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl tl-current reveal" data-cat="quality">
+        <div class="tl-date">16/nov</div>
+        <details class="tl-card" open>
+          <summary><span class="pill p-quality">Qualidade</span><h3>Desempenho, confiabilidade e AdapterBenchmark</h3></summary>
+          <ul>
+            <li><b>Desempenho</b>: orquestração opcional em thread pool, gate mais rápido, schemas e medições de context reutilizados.</li>
+            <li><b>Confiabilidade</b>: reconciliação de operações, fronteira de journal durável, classificação de falhas, fila de mutations justa.</li>
+            <li><b>Adapters</b>: <code>BoundedHttpClient</code> compartilhado; Groq selecionável no ThroneRoom, com suporte a retry.</li>
+            <li><b>Diagnóstico</b>: debug mode mais amplo, tempo do Arandu vs. do provedor e a nova sample AdapterBenchmark.</li>
+            <li>19 commits de 11/nov a 16/nov. Último registro: 322 testes de Edit Mode e 45 de Play Mode do Integration.</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl tl-next reveal" data-cat="quality">
+        <div class="tl-date">Próximo</div>
+        <div class="tl-card tl-card-next">
+          <span class="pill p-next">Planejado</span>
+          <h3>Experimentos e relatórios</h3>
+          <p>Rodar o AdapterBenchmark no Groq, no Gemini e em mais uma API, e montar relatórios com os dados do <code>ARANDU_DIAGNOSTICS</code>.</p>
+        </div>
+      </li>
+    </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATUS ============ -->
+<section id="status" class="section section-deep">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>07</span> Status atual</p>
+      <h2>O que está pronto, o que foi medido, o que ainda está em aberto</h2>
+      <p class="sub">Retrato de 16 de novembro de 2026, com os testes com APIs reais informados pelo aluno até 22 de novembro. O que foi implementado fica separado dos resultados verificados e do que ainda precisa de validação.</p>
+    </header>
+
+    <div class="status-grid stagger">
+      <div class="status-col spot reveal">
+        <h3 class="st st-done">Implementado</h3>
+        <p class="st-desc">Aceito pelo aluno como desenvolvedor.</p>
+        <ul class="checks">
+          <li>Core, ModelAdapter, Integration e Editor</li>
+          <li>Adapters de exemplo do Gemini e do Groq</li>
+          <li>ThroneRoom com Gemini ou Groq</li>
+          <li>Sample de diagnóstico AdapterBenchmark</li>
+          <li>Debug mode com tempo do Arandu vs. do provedor</li>
+          <li>Reconciliação de operações e classificação de falhas</li>
+        </ul>
+      </div>
+      <div class="status-col spot reveal">
+        <h3 class="st st-verified">Verificado</h3>
+        <p class="st-desc">Últimos registros locais de testes por área. As contagens vêm de seleções diferentes e não são somadas.</p>
+        <div class="tests">
+          <div><b data-count="322">0</b><span>Edit Mode · plugin</span></div>
+          <div><b data-count="45">0</b><span>Play Mode · Integration</span></div>
+          <div><b data-count="15">0</b><span>portátil · Groq</span></div>
+          <div><b>27 / 43</b><span>Edit / Play · ThroneRoom</span></div>
+          <div><b>16 / 2</b><span>Edit / Play · Benchmark</span></div>
+          <div><b data-count="296">0</b><span>portátil · Core e adapters</span></div>
+        </div>
+        <div class="live-check">
+          <b>API real</b>
+          <span>Gemini e Groq jogados e testados pelo aluno.</span>
+        </div>
+      </div>
+      <div class="status-col spot reveal">
+        <h3 class="st st-open">Ainda não validado</h3>
+        <p class="st-desc">Pontos em aberto para a etapa de avaliação.</p>
+        <ul class="opens">
+          <li>Chamadas reais a uma terceira API</li>
+          <li>Uma execução ao vivo do AdapterBenchmark</li>
+          <li>Qualidade medida das decisões e dos resumos</li>
+          <li>Custo real e latência do serviço</li>
+          <li>Builds de jogador, IL2CPP, WebGL e dispositivos</li>
+          <li>Durabilidade depois de reiniciar</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="minor-title reveal">Medições locais</h3>
+    <p class="note reveal">Medido numa máquina local, com falhas simuladas e um servidor HTTP falso. Descreve o comportamento do próprio plugin, não a latência de APIs reais.</p>
+    <div class="measures stagger">
+      <div class="measure spot reveal">
+        <h4>Retry backoff</h4>
+        <p class="m-ctx">32 agents, falhas de até 250 ms</p>
+        <div class="mbar">
+          <span>Total de tentativas</span>
+          <div class="mrow"><em>fixo</em><div class="track"><i class="old" style="--w:100%"></i></div><b>128</b></div>
+          <div class="mrow"><em>backoff</em><div class="track"><i class="new" style="--w:50%"></i></div><b>64</b></div>
+        </div>
+        <div class="mbar">
+          <span>Pico de tentativas em 100 ms</span>
+          <div class="mrow"><em>fixo</em><div class="track"><i class="old" style="--w:100%"></i></div><b>32</b></div>
+          <div class="mrow"><em>backoff</em><div class="track"><i class="new" style="--w:37.5%"></i></div><b>12</b></div>
+        </div>
+        <p class="tradeoff">Custo: o request mais lento vai de 340 para 1.018 ms de tempo lógico.</p>
+      </div>
+      <div class="measure spot reveal">
+        <h4>Varreduras do operation journal</h4>
+        <p class="m-ctx">Unity Editor, 2.048 registros, metade não resolvida</p>
+        <table class="mtable">
+          <thead><tr><th>Cenário</th><th>Antes</th><th>Depois</th></tr></thead>
+          <tbody>
+            <tr><td>Sem expirações</td><td>106,452 µs</td><td>0,022 µs</td></tr>
+            <tr><td>Expirações espaçadas</td><td>213,650 µs</td><td>93,100 µs</td></tr>
+            <tr><td>Rajada</td><td>247,600 µs</td><td>97,200 µs</td></tr>
+          </tbody>
+        </table>
+        <p class="tradeoff">Medianas. Cerca de 32 KiB de memória extra no pico medido.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>08</span> Cronograma</p>
+      <h2>Cronograma acadêmico</h2>
+      <p class="sub">Os cinco marcos do plano da disciplina. S significa semana do mês.</p>
+    </header>
+
+    <div class="milestones stagger">
+      <span class="ms-beam reveal" aria-hidden="true"><i></i></span>
+      <div class="ms spot reveal"><span class="ms-when">SET S4</span><h3>Arquitetura base</h3><p>Definição detalhada da arquitetura</p></div>
+      <div class="ms spot reveal"><span class="ms-when">OUT S3</span><h3>Agent runtime</h3><p>Loop agêntico, tools/skills e integração com APIs</p></div>
+      <div class="ms spot reveal"><span class="ms-when">NOV S1</span><h3>Plugin v0.0.1</h3><p>Integração do runtime e cena de sample</p></div>
+      <div class="ms spot reveal ms-now"><span class="ms-when">NOV S3</span><h3>Refinamento</h3><p>Logs, erros, timeouts e testes</p></div>
+      <div class="ms spot reveal"><span class="ms-when">NOV S4</span><h3>Avaliação</h3><p>Experimentos, demonstração e relatório</p></div>
+    </div>
+
+    <div class="next reveal">
+      <div class="next-badge">Próximos passos</div>
+      <h3>Experimentos e relatórios a partir dos dados do <code>ARANDU_DIAGNOSTICS</code></h3>
+      <div class="next-steps">
+        <span>Rodar o AdapterBenchmark</span><span>Capturar com o debug mode</span><span>Gerar relatórios</span>
+      </div>
+      <div class="apis">
+        <div class="api"><b>Gemini</b><span>Já jogado e testado no ThroneRoom</span></div>
+        <div class="api"><b>Groq</b><span>Já jogado e testado</span></div>
+        <div class="api api-tbd"><b>Mais uma API</b><span>A definir</span></div>
+      </div>
+      <p>Os mesmos cenários vão rodar em cada API, para que os relatórios possam compará-las.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div>
+      <div class="brand brand-foot"><span class="brand-mark" aria-hidden="true">A</span><span>Arandu</span></div>
+      <p>Agentes de IA reutilizáveis, limitados e inspecionáveis para jogos Unity.</p>
+    </div>
+    <div>
+      <p><b>Lucas de Medeiros Ferreira</b><br>Laboratório de IA Aplicada<br>Mestrado em Engenharia de Software · UNIPAMPA</p>
+    </div>
+    <div>
+      <p class="faint">Última atualização: 24 de novembro de 2026 (seletor de idioma Eng / PT-BR, nova narração do trailer).<br>Fatos do repositório do projeto (HEAD <code>194ab29</code>, 16/nov) e dos registros semanais de progresso.</p>
+      <a class="totop" href="#top">Voltar ao topo ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
