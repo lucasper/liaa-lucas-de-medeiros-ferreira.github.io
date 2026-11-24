@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arandu · Adapter Benchmark report</title>
+  <meta name="description" content="Results of the first live AdapterBenchmark run of Arandu: Gemini and Groq adapters, three models, ten scenarios, 285 measured turns.">
+  <meta name="theme-color" content="#07061a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="benchmark.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c084fc'/%3E%3Cstop offset='1' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230d0b26'/%3E%3Cpath d='M32 12 50 52H40l-8-19-8 19H14z' fill='url(%23g)'/%3E%3C/svg%3E">
+</head>
+<body class="bench-page">
+
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+<div class="cursor-glow" aria-hidden="true"></div>
+<div class="bg-orbs" aria-hidden="true"><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span></div>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<header class="topbar" id="top">
+  <a class="brand" href="index.html" aria-label="Arandu home">
+    <span class="brand-mark" aria-hidden="true">A</span>
+    <span>Arandu</span>
+  </a>
+  <button class="menu-toggle" aria-expanded="false" aria-controls="nav" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="nav" class="nav">
+    <a href="index.html#trailer">Trailer</a>
+    <a href="index.html#context">Context</a>
+    <a href="index.html#solution">Solution</a>
+    <a href="index.html#samples">Samples</a>
+    <a href="index.html#progress">Progress</a>
+    <a href="index.html#status">Status</a>
+    <a href="index.html#roadmap">Roadmap</a>
+    <a href="benchmark.html" class="nav-tab active" aria-current="page">Benchmark</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============ REPORT HEADER ============ -->
+<section class="bhero">
+  <canvas id="bnet" class="hero-net" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <p class="eyebrow anim-in" style="--d:0">Report · AdapterBenchmark sample · first live run</p>
+    <h1 class="anim-in" style="--d:1">How Arandu performs with <span class="grad">real AI providers</span></h1>
+    <p class="lead anim-in" style="--d:2">The AdapterBenchmark sample sent the same ten tasks, five times each, to three real language models: Gemini 3.5 Flash Lite through the Gemini adapter, and GPT-OSS 120B and GPT-OSS 20B through the Groq adapter. This report explains what was measured, what the numbers show about the adapters and about the plugin's own features, and what to improve next.</p>
+    <ul class="meta-chips anim-in" style="--d:3">
+      <li><b>Run</b> November 23, 2026, 20:53–22:10 (UTC−4)</li>
+      <li><b>Where</b> Unity 6000.3.16f1 Editor, Windows, Play Mode</li>
+      <li><b>Build</b> <code>ARANDU_DIAGNOSTICS</code> debug profile</li>
+      <li><b>Data</b> 3 CSV, 3 JSON, 3 captures, 3 debug reports</li>
+    </ul>
+    <div class="hero-cta anim-in" style="--d:4">
+      <a class="btn btn-primary magnetic" href="#findings"><span>Key findings</span></a>
+      <a class="btn btn-ghost magnetic" href="#method"><span>How it was measured</span></a>
+    </div>
+
+    <div class="stats bstats">
+      <div class="stat reveal"><b data-count="285">0</b><span>turns measured<br>3 models · 10 scenarios · 5 repeats</span></div>
+      <div class="stat reveal"><b><span data-count="96.8" data-dec="1">0</span>%</b><span>turns met their expectation<br>276 of 285</span></div>
+      <div class="stat reveal"><b data-count="90">0</b><span>automatic retries<br>almost all from Groq rate limits</span></div>
+      <div class="stat reveal"><b>~<span data-count="8">0</span> ms</b><span>median Arandu time per turn<br>about 1–2% of a turn</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTENTS ============ -->
+<nav class="toc wrap reveal" aria-label="Report contents">
+  <a href="#findings"><span>00</span>Key findings</a>
+  <a href="#method"><span>01</span>The benchmark</a>
+  <a href="#reading"><span>02</span>Reading the numbers</a>
+  <a href="#reliability"><span>03</span>Reliability</a>
+  <a href="#speed"><span>04</span>Speed</a>
+  <a href="#split"><span>05</span>Where time goes</a>
+  <a href="#limits"><span>06</span>Rate limits</a>
+  <a href="#features"><span>07</span>Plugin features</a>
+  <a href="#providers"><span>08</span>Providers</a>
+  <a href="#next"><span>09</span>Conclusions</a>
+</nav>
+
+<!-- ============ FINDINGS ============ -->
+<section id="findings" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>00</span> Key findings</p>
+      <h2>Five things this run shows</h2>
+      <p class="sub">The short version. Each finding links to the section with the evidence.</p>
+    </header>
+
+    <div class="findings stagger">
+      <a class="finding spot reveal" href="#split">
+        <i class="fnum">1</i>
+        <h3>Arandu adds very little time</h3>
+        <p>On turns without retries, the plugin's own work (Core, adapter, Unity frame wait) took a median of <b>7–14 ms</b>. That is about <b>1–2%</b> of a turn. Almost all the time is spent on the network and at the provider.</p>
+      </a>
+      <a class="finding spot reveal" href="#limits">
+        <i class="fnum">2</i>
+        <h3>Groq's rate limits dominate its results</h3>
+        <p>Groq answers fast, but its rate limit (tokens per minute) made the plugin wait. <b>Waiting for rate limits was about 91%</b> of all Groq turn time. Without those waits, both Groq models were faster than Gemini in nearly every scenario.</p>
+      </a>
+      <a class="finding spot reveal" href="#limits">
+        <i class="fnum">3</i>
+        <h3>The retry logic behaved correctly</h3>
+        <p>The plugin retried 90 times and always waited at least as long as the provider asked (<code>Retry-After</code>) in <b>81 of 82</b> retried turns. The one exception ended on purpose: the requested wait did not fit in the turn's 60 s deadline.</p>
+      </a>
+      <a class="finding spot reveal" href="#reliability">
+        <i class="fnum">4</i>
+        <h3>Two adapter-level problems found</h3>
+        <p>The Gemini adapter rejects the StructuredOutput schema before sending it (0 of 5), because the schema uses <code>maxLength</code>. GPT-OSS 20B once sent a tool call the Groq adapter could not read. Both are concrete fixes.</p>
+      </a>
+      <a class="finding spot reveal" href="#features">
+        <i class="fnum">5</i>
+        <h3>Context summaries never got accepted</h3>
+        <p>Context pressure was detected in all 15 long conversations and the history stayed bounded, so the scenario passed. But the <b>30 summary attempts</b> produced <b>no accepted summary</b>: Gemini's were cut off and Groq's hit the rate limit.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section id="method" class="section section-deep">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>01</span> The benchmark</p>
+      <h2>What was run, and on what</h2>
+      <p class="sub">A quick refresher on the words used in the rest of the report, then the exact setup.</p>
+    </header>
+
+    <div class="glossary stagger">
+      <div class="gterm reveal"><b>Adapter</b><p>The piece of Arandu that talks to one AI provider. It turns an Arandu request into the provider's HTTP format and turns the answer back. This run used the <b>Gemini</b> and <b>Groq</b> example adapters.</p></div>
+      <div class="gterm reveal"><b>Model</b><p>The language model behind the provider. Groq hosts two open-weight models here (GPT-OSS 120B and 20B, the number is their size in billions of parameters). Gemini hosts Gemini 3.5 Flash Lite.</p></div>
+      <div class="gterm reveal"><b>Scenario</b><p>One fixed task that tests one plugin feature, such as calling a tool or remembering earlier messages. There are ten.</p></div>
+      <div class="gterm reveal"><b>Turn</b><p>One request from the game and its final answer. A scenario can have several turns (a conversation). The 10 scenarios add up to 19 turns.</p></div>
+      <div class="gterm reveal"><b>Repeat</b><p>Each scenario ran 5 times per model, each time in a fresh session, to see how consistent the results are.</p></div>
+      <div class="gterm reveal"><b>Expectation</b><p>A concrete pass/fail check per turn, written in the sample. For example, "used the lookup tool and the answer contains 7". It checks behavior, not writing quality.</p></div>
+      <div class="gterm reveal"><b>Retry</b><p>When a provider call fails with a temporary error, Arandu can wait and send it again. The wait follows the provider's <code>Retry-After</code> header when present, plus backoff.</p></div>
+      <div class="gterm reveal"><b>Rate limit</b><p>A cap the provider puts on usage, like requests or tokens per minute. Going over it returns HTTP 429 ("too many requests") with a time to wait.</p></div>
+    </div>
+
+    <h3 class="minor-title reveal">Setup</h3>
+    <div class="table-wrap reveal">
+      <table class="mtable btable" id="setup-table">
+        <thead><tr><th>Adapter</th><th>Model</th><th>Delay between calls</th><th>Context window</th><th>Turns</th><th>Run time</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note reveal">The models ran one after the other in one Play Mode session: Gemini first, then GPT-OSS 120B, then GPT-OSS 20B. Every call waited the adapter's delay before starting. During the Gemini run, Unity was minimized a few times, which paused the Editor and the benchmark (31.5 minutes in total). The run times in the table count only active time. API keys stayed in memory and are not in any exported file. Source: <code>AdapterBenchmarkResults</code> folder under the Unity persistent data path, files stamped <code>20261124-005339</code> (UTC).</p>
+
+    <h3 class="minor-title reveal">The ten scenarios</h3>
+    <div class="scen-grid stagger" id="scen-grid"></div>
+  </div>
+</section>
+
+<!-- ============ READING ============ -->
+<section id="reading" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>02</span> Reading the numbers</p>
+      <h2>How the results are summarized</h2>
+      <p class="sub">The analysis follows common practice for latency benchmarks and for evaluating AI agents. With 5 repeats per scenario, the sample is small, so the report favors simple, robust measures and always shows the raw points.</p>
+    </header>
+
+    <div class="grid-3 stagger">
+      <article class="card spot reveal">
+        <h3>Median and p90, not the average</h3>
+        <p>Response times are skewed: most calls are quick, a few are very slow. One slow call can pull the average far from what is typical. The <b>median (p50)</b> is the middle value. The <b>p90</b> is the time that 90% of turns stayed under, a view of the slow tail. Higher percentiles like p99 need hundreds of samples, so they are not used here.</p>
+      </article>
+      <article class="card spot reveal">
+        <h3>Pass rate with an honest margin</h3>
+        <p>A pass rate from 5 tries is uncertain. Each rate comes with a <b>95% Wilson interval</b>, a range that stays sensible for small samples and rates near 0% or 100%. Each scenario also reports <b>pass^5</b>: how many of the 5 repeats passed on every turn. It rewards consistency, an idea from the τ-bench agent benchmark.</p>
+      </article>
+      <article class="card spot reveal">
+        <h3>Waiting is not slowness</h3>
+        <p>When a provider is rate-limited, Arandu waits on purpose. That time says nothing about how fast the model is. So each turn's time is split into four parts (below), and speed is shown <b>with and without</b> the rate-limit wait. Model comparisons use <b>Cliff's delta</b>, a simple effect size: how often one model is faster than the other, from −1 to +1.</p>
+      </article>
+    </div>
+
+    <h3 class="minor-title reveal">The four parts of a turn</h3>
+    <div class="tsplit reveal" id="tsplit">
+      <div class="tseg" style="--c: var(--ph-local)"><i></i><b>Arandu &amp; Unity</b><span>Everything done on the PC: Core phases (queue, preparation, context, checkpoint), the adapter's encoding and decoding, tools, and waiting for the next Unity frame.</span></div>
+      <div class="tseg" style="--c: var(--ph-net)"><i></i><b>Network &amp; provider front end</b><span>HTTP time that the provider does not report as processing: the trip over the internet, TLS, the provider's queue and gateway.</span></div>
+      <div class="tseg" style="--c: var(--ph-prov)"><i></i><b>Provider processing</b><span>The processing time the provider states in its response (Gemini's <code>Server-Timing</code> header, Groq's <code>usage.total_time</code>).</span></div>
+      <div class="tseg" style="--c: var(--ph-retry)"><i></i><b>Rate-limit wait</b><span>Time Arandu waited before a retry, as asked by the provider. Zero when no retry was needed.</span></div>
+    </div>
+    <div class="callout callout-sm reveal">
+      <b>Data cleaning</b>
+      <p>Unity was minimized a few times during the Gemini run. A minimized Editor slows its frame loop to about 10 frames per second and can pause the benchmark between turns. Four Gemini turns ran during those moments: their Unity frame wait was about 100 ms instead of about 4 ms. These four turns (SkillSwitch repeat 4 turn 2, ContextPressure repeat 1 turn 5, and repeat 3 turns 6 and 7) are <b>left out of every timing chart and statistic</b>. Their pass/fail results are kept, because they all completed correctly. The pauses between turns (31.5 minutes) are removed from the session clock.</p>
+    </div>
+    <p class="note reveal">The diagnostic build measures these parts directly (commit <code>6ac5285</code>). Provider processing is the provider's own statement, not a local measurement, and the two providers report it differently, so compare it with care.</p>
+  </div>
+</section>
+
+<!-- ============ RELIABILITY ============ -->
+<section id="reliability" class="section section-deep">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>03</span> Reliability</p>
+      <h2>Did each scenario do what it should?</h2>
+      <p class="sub">Each cell shows how many turns met their expectation. Click a cell to see every turn, its status and the start of the answer.</p>
+    </header>
+
+    <div class="chart-card reveal">
+      <div class="chart-head">
+        <div><h3>Expectation met, by scenario and model</h3><p>Share of turns that passed · 95% Wilson interval in the tooltip</p></div>
+        <div class="legend-inline" aria-hidden="true"><span class="lg-scale"><i></i>0% → 100%</span></div>
+      </div>
+      <div class="chart" id="c-reliability" style="height:520px" role="img" aria-label="Heatmap of expectation pass rate per scenario and model"></div>
+      <div class="cell-detail" id="cell-detail"><p class="faint">Click a cell to list its turns.</p></div>
+    </div>
+
+    <div class="pass-row stagger" id="pass-row"></div>
+
+    <h3 class="minor-title reveal">The nine turns that did not pass</h3>
+    <div class="table-wrap reveal">
+      <table class="mtable" id="fail-table">
+        <thead><tr><th>Model</th><th>Scenario</th><th>Repeat</th><th>Status</th><th>What happened</th><th>Whose issue</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="callout reveal">
+      <b>What this means</b>
+      <p>Outside the two adapter issues, almost everything passed: tools, mutations with receipts, multi-turn memory, skills, cancellation and long inputs. The failures fall into three groups. <b>Adapter</b>: Gemini rejects a schema keyword it does not translate, and GPT-OSS 20B produced one tool call the Groq adapter could not parse. <b>Provider</b>: two runs gave up after repeated rate limits. <b>Benchmark design</b>: once, GPT-OSS 120B refused the essay so quickly (709 ms) that it finished before the 800 ms cancel arrived.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPEED ============ -->
+<section id="speed" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>04</span> Speed</p>
+      <h2>How long a game waits for an answer</h2>
+      <p class="sub">Time from the moment the game submits a turn until it gets the result. Each dot is one turn; the box covers the middle half of the turns and the line inside is the median. The scale is logarithmic so fast and slow scenarios fit together. The four Gemini turns that ran while Unity was minimized are left out.</p>
+    </header>
+
+    <div class="chart-card reveal">
+      <div class="chart-head">
+        <div><h3>Turn time per scenario</h3><p id="lat-sub">Total time the game waited</p></div>
+        <div class="seg" role="tablist" data-target="latency">
+          <button class="segb active" data-mode="total" role="tab" aria-selected="true">Total time</button>
+          <button class="segb" data-mode="noretry" role="tab" aria-selected="false">Without rate-limit waits</button>
+        </div>
+      </div>
+      <div class="model-legend"></div>
+      <div class="chart-scroll"><div class="chart" id="c-latency" style="height:500px" role="img" aria-label="Box plots of turn time per scenario and model"></div></div>
+      <p class="chart-note scroll-hint">Swipe sideways to see all ten scenarios.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card reveal">
+        <div class="chart-head">
+          <div><h3>All turns, sorted</h3><p>Share of turns finished within a given time</p></div>
+          <div class="seg" data-target="ecdf">
+            <button class="segb active" data-mode="total">Total</button>
+            <button class="segb" data-mode="noretry">No waits</button>
+          </div>
+        </div>
+        <div class="chart" id="c-ecdf" style="height:380px" role="img" aria-label="Cumulative distribution of turn times per model"></div>
+        <p class="chart-note">Read it like this: pick a time on the bottom axis; the line's height is the share of that model's turns that finished by then. A line further left is faster. Cancellation and locally rejected turns are left out.</p>
+      </div>
+      <div class="chart-card reveal">
+        <div class="chart-head">
+          <div><h3>Median turn time, no waits</h3><p>Simple single-call scenarios, in milliseconds</p></div>
+        </div>
+        <div class="chart" id="c-simple" style="height:380px" role="img" aria-label="Median turn time for simple scenarios"></div>
+        <p class="chart-note">PlainText, StructuredOutput, SkillSwitch and MultiTurnSession turns need one model call and no tools, so they show raw responsiveness best.</p>
+      </div>
+    </div>
+
+    <h3 class="minor-title reveal">Which model is faster? Effect size per scenario</h3>
+    <div class="table-wrap reveal">
+      <table class="mtable cliff" id="cliff-table"></table>
+    </div>
+    <p class="note reveal">Cliff's delta on turn time without rate-limit waits, completed turns only. A value of +1.00 means every turn of the first model was slower than every turn of the second. Labels follow the usual thresholds (Romano et al., 2006): negligible under 0.15, small under 0.33, medium under 0.47, large above. With 5–35 turns per cell this shows direction and size, not statistical proof.</p>
+
+    <div class="callout reveal">
+      <b>What this means</b>
+      <p>Measured on total time, Gemini looks fastest in the heavy scenarios, but only because it was rarely rate-limited. Remove the waits and the picture flips: GPT-OSS 20B is the quickest, GPT-OSS 120B is next, and Gemini 3.5 Flash Lite is the slowest of the three in almost every scenario. For a game, both views matter: raw speed tells what the model can do, total time tells what a player on this provider plan would feel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPLIT ============ -->
+<section id="split" class="section section-deep">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>05</span> Where the time goes</p>
+      <h2>The plugin, the network or the provider?</h2>
+      <p class="sub">The four parts of every turn, added up per model. Pick a scenario to zoom in, or switch to milliseconds to compare totals.</p>
+    </header>
+
+    <div class="chart-card reveal">
+      <div class="chart-head">
+        <div><h3>Time split per model</h3><p id="split-sub">All scenarios · share of total turn time</p></div>
+        <div class="controls">
+          <label class="select"><span class="sr-only">Scenario</span><select id="split-scen"></select></label>
+          <div class="seg" data-target="split">
+            <button class="segb active" data-mode="share">Share</button>
+            <button class="segb" data-mode="ms">Seconds</button>
+          </div>
+        </div>
+      </div>
+      <div class="phase-legend"></div>
+      <div class="chart" id="c-split" style="height:300px" role="img" aria-label="Stacked bars of time split per model"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card reveal">
+        <div class="chart-head"><div><h3>Arandu &amp; Unity time per turn</h3><p>Completed turns without retries, minimized-Editor turns left out · milliseconds</p></div></div>
+        <div class="chart" id="c-overhead" style="height:360px" role="img" aria-label="Arandu local time per turn per model"></div>
+      </div>
+      <div class="chart-card reveal">
+        <div class="chart-head"><div><h3>What the local time is made of</h3><p>Median per turn · milliseconds</p></div></div>
+        <div class="chart" id="c-overhead-parts" style="height:360px" role="img" aria-label="Median local time components per model"></div>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <b>What this means</b>
+      <p>The plugin is not the bottleneck. A typical turn spends single-digit milliseconds in Arandu: about 0–2 ms in the Core phases, 2–3 ms waiting for the next Unity frame to resume, under 2 ms in the adapter, and about 4 ms handing the request in and the result back to the game. The slowest local times (up to 87 ms) were the first calls of the session, while code and connections warm up. Gemini's median is higher because of its last turns: before the long pauses its median was 9 ms, close to Groq's; in the 28 clean turns after Unity was restored it was 37 ms, with the hand-back alone taking about 18 ms instead of 4 ms. That points to the Editor still running at a lower frame rate (for example, while not in focus), not to extra work in Arandu. For Gemini, the provider's own processing is most of the time. For Groq, processing is tiny (about 0.1 s), and the rest is network, the provider's queue and, above all, rate-limit waits.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RATE LIMITS ============ -->
+<section id="limits" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>06</span> Rate limits and retries</p>
+      <h2>What happened when providers said "slow down"</h2>
+      <p class="sub">Groq's rate-limit documentation lists <b>8,000 tokens per minute</b> and 30 requests per minute for both GPT-OSS models in its standard limits table (the limits of this account were not checked). The benchmark sends long inputs every 2.5 s, so it reaches the token cap quickly. This is where Arandu's retry feature was really exercised.</p>
+    </header>
+
+    <div class="chart-card reveal">
+      <div class="chart-head">
+        <div><h3>The whole session, turn by turn</h3><p>Each dot is a turn, placed at its start time · ring = the turn had to wait for a rate limit</p></div>
+        <button class="btn btn-ghost btn-sm" id="replay"><span>▶ Replay the session</span></button>
+      </div>
+      <div class="model-legend"></div>
+      <div class="chart" id="c-timeline" style="height:420px" role="img" aria-label="Timeline of all turns in the session"></div>
+      <p class="chart-note">The clock skips the eight pauses while Unity was minimized (dotted lines, 31.5 minutes in total; the longest was about 12 minutes). The four hollow gray dots ran while the Editor was minimized and are left out of the timing charts. On the Groq side, the turns marked with a ring cluster in the long ContextPressure and LongInput scenarios, where each request carries thousands of tokens.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card reveal">
+        <div class="chart-head"><div><h3>Bigger requests, longer waits</h3><p>Groq turns · request size vs. rate-limit wait</p></div></div>
+        <div class="chart" id="c-tpm" style="height:360px" role="img" aria-label="Rate-limit wait versus input tokens for Groq turns"></div>
+        <p class="chart-note">Each dot is one Groq turn. Under 1,000 tokens, only 12 of 93 turns waited (at most 4.6 s). At 3,000 tokens or more, 44 of 50 turns waited, with a median of 28 s, because a token-per-minute limit refills slowly. Groq's documentation also says cached prompt tokens do not count toward the limit, so the exact budget per request cannot be rebuilt from these files.</p>
+      </div>
+      <div class="chart-card reveal">
+        <div class="chart-head"><div><h3>Did Arandu wait long enough?</h3><p>Each dot is a retried turn · wait asked vs. wait done, seconds</p></div></div>
+        <div class="chart" id="c-honor" style="height:360px" role="img" aria-label="Retry wait done versus Retry-After requested"></div>
+        <p class="chart-note">Dots on or above the diagonal waited at least as long as the provider asked. 81 of 82 are there. The single dot far below is the Gemini ToolChain run whose second <code>Retry-After</code> (58 s) did not fit in the 60 s turn deadline, so the run ended as <code>ModelUnavailable</code> instead of waiting.</p>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <b>What this means</b>
+      <p>Retries rescued 80 of the 82 turns that needed them (79 of 80 on Groq), which is the goal of the feature. The cost is time: in ContextPressure, the later turns waited up to 44 s each. Two ideas follow. First, the benchmark's Groq totals describe this account's rate limits more than the models. Second, a game on such a plan would benefit from pacing by tokens before sending (Groq returns <code>x-ratelimit-remaining-tokens</code> on every response), instead of only reacting to 429 errors.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section id="features" class="section section-deep">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>07</span> Plugin features under test</p>
+      <h2>Feature by feature</h2>
+      <p class="sub">Beyond speed, each scenario checks one Arandu capability with a live model. Here is what each one showed.</p>
+    </header>
+
+    <div class="feature-grid">
+      <article class="fcard reveal">
+        <header><span class="ftag">Tools</span><h3>Read tools and tool chains</h3></header>
+        <p>The model may only <em>propose</em> a tool call. Arandu runs the tool and sends the result back, so one turn needs several model calls. All models used the lookup tool correctly in all 15 SingleReadTool turns. In ToolChain (three lookups, then a sum), 12 of 15 turns passed; the three failures were two rate-limit give-ups and one unreadable tool call.</p>
+        <div class="chart" id="c-tools" style="height:300px" role="img" aria-label="Model calls per turn in tool scenarios"></div>
+        <p class="chart-note">Model calls per turn, median. Gemini can request several tools at once, so it needs fewer calls. Failed calls that were retried count too.</p>
+      </article>
+
+      <article class="fcard reveal">
+        <header><span class="ftag">Mutations</span><h3>Changing game state safely</h3></header>
+        <p>In MutationTool the model asks to add 3 to a counter. The game's authority applies it and issues a receipt, and Arandu then re-checks the operation. <b>15 of 15</b> turns reported the change as <code>Applied</code> and the re-check as <code>Resolved</code>.</p>
+        <div class="big-stats">
+          <div><b data-count="15">0</b><span>applied, with receipt</span></div>
+          <div><b data-count="15">0</b><span>re-checks resolved</span></div>
+          <div><b data-count="0">0</b><span>duplicate effects</span></div>
+        </div>
+        <p class="chart-note">The counter went 3, 6, 9, 12, 15 across repeats, so the sample's counter lives for the whole session rather than per repeat. Even when the follow-up model call was retried, the mutation was not applied twice.</p>
+      </article>
+
+      <article class="fcard reveal">
+        <header><span class="ftag">Context</span><h3>Context pressure in long conversations</h3></header>
+        <p>ContextPressure sends seven large messages in one session. Arandu should notice the history is getting too big and keep it within budget. It did: pressure was detected at <b>turn 6</b> in all 15 runs and the history stopped growing at 12 messages (about 28.5 KB).</p>
+        <div class="seg seg-sm" data-target="context">
+          <button class="segb active" data-mode="hist">History size</button>
+          <button class="segb" data-mode="units">Estimated vs. measured tokens</button>
+        </div>
+        <div class="chart" id="c-context" style="height:300px" role="img" aria-label="Context size per turn"></div>
+        <p class="chart-note" id="context-note">Average over the 5 repeats. The marker shows where pressure was detected.</p>
+      </article>
+
+      <article class="fcard reveal">
+        <header><span class="ftag">Summaries</span><h3>Context summaries</h3></header>
+        <p>When pressure is detected, Arandu can ask the model to summarize older messages. It tried <b>30 times</b> (turns 6 and 7 of each run) and <b>accepted none</b>. The turns still worked because the history was bounded, but the summary path itself did not succeed with live providers.</p>
+        <div class="chart" id="c-summary" style="height:240px" role="img" aria-label="Outcome of summary attempts per model"></div>
+        <p class="chart-note">Gemini returned summaries cut off by the output limit (<code>Truncated</code>) or rate-limited. Groq's summary calls were rate-limited; one GPT-OSS 20B summary completed but was not accepted.</p>
+      </article>
+
+      <article class="fcard reveal">
+        <header><span class="ftag">Skills</span><h3>Switching skills mid-session</h3></header>
+        <p>SkillSwitch asks for a sunset description with a <em>terse</em> skill ("one short sentence"), then again with a <em>detailed</em> skill ("three to five sentences"). All 30 turns completed. The length change shows whether the model followed the new skill.</p>
+        <div class="chart" id="c-skills" style="height:300px" role="img" aria-label="Answer length with terse and detailed skills"></div>
+        <p class="chart-note" id="skills-note"></p>
+      </article>
+
+      <article class="fcard reveal">
+        <header><span class="ftag">Sessions</span><h3>Memory across turns</h3></header>
+        <p>MultiTurnSession gives a code word, asks an unrelated question, then asks for the code word back. Recall depends on Arandu sending the session history correctly.</p>
+        <div class="big-stats">
+          <div><b data-count="15">0</b><span>of 15 recalled "heron"</span></div>
+          <div><b data-count="45">0</b><span>of 45 turns passed</span></div>
+        </div>
+        <p class="chart-note">Every model, every repeat. This is the plain session-history path working end to end.</p>
+      </article>
+
+      <article class="fcard reveal">
+        <header><span class="ftag">Cancellation</span><h3>Stopping a request</h3></header>
+        <p>Cancellation asks for a 400-word essay and cancels after 800 ms. Arandu should stop the run quickly and report <code>Cancelled</code>. It did in 14 of 15 turns. The chart shows the time from the cancel request to the final status.</p>
+        <div class="chart" id="c-cancel" style="height:260px" role="img" aria-label="Time from cancel request to terminal status"></div>
+        <p class="chart-note">Groq runs stopped within 5–8 ms, Gemini runs within 21–41 ms. The one miss was a quick refusal that finished before the cancel.</p>
+      </article>
+
+      <article class="fcard reveal">
+        <header><span class="ftag">Structured output</span><h3>Answers in a JSON schema</h3></header>
+        <p>StructuredOutput asks for <code>{answer, confidence}</code> following a JSON schema. Both Groq models returned valid JSON in <b>10 of 10</b> turns, for example <code>{"answer":"Paris","confidence":100}</code>.</p>
+        <p>The Gemini adapter stopped all 5 turns in about 1 ms, before any network call, with <code>UnsupportedCapability</code>. The schema contains <code>"maxLength": 200</code>, and the adapter deliberately rejects keywords it does not translate (<code>GeminiProtocol.StripDialect</code>). Gemini's documentation says unsupported schema fields may be ignored, so the adapter chose to fail closed. This is safe, but it means a common schema keyword blocks the feature.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROVIDERS ============ -->
+<section id="providers" class="section">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>08</span> Provider view</p>
+      <h2>Inside each successful model call</h2>
+      <p class="sub">These numbers are per model call (a turn with tools has several). They come from the plugin's debug capture of every call.</p>
+    </header>
+
+    <div class="two-col">
+      <div class="chart-card reveal">
+        <div class="chart-head"><div><h3>Output speed reported by the provider</h3><p>Output tokens per second of provider processing · median</p></div></div>
+        <div class="chart" id="c-tps" style="height:340px" role="img" aria-label="Output tokens per second per model"></div>
+        <p class="chart-note">Calls with at least 20 output tokens. For GPT-OSS, output tokens include reasoning tokens. Gemini and Groq measure processing differently, so treat this as a rough comparison.</p>
+      </div>
+      <div class="chart-card reveal">
+        <div class="chart-head"><div><h3>Network time vs. provider processing</h3><p>Each dot is one successful call · milliseconds</p></div></div>
+        <div class="chart" id="c-transport" style="height:340px" role="img" aria-label="Scatter of provider processing time versus HTTP time"></div>
+        <p class="chart-note">Dots near the diagonal spent almost all HTTP time in processing. Groq's dots sit far above it: about 0.3–0.4 s of each call is network and queue (Groq separately reports a queue time of about 0.2 s).</p>
+      </div>
+    </div>
+
+    <div class="table-wrap reveal">
+      <table class="mtable" id="prov-table">
+        <thead><tr><th>Model</th><th>Successful calls</th><th>HTTP time p50</th><th>Provider processing p50</th><th>Network &amp; front end p50</th><th>Failed calls</th><th>Typical Retry-After</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONCLUSIONS ============ -->
+<section id="next" class="section section-deep">
+  <div class="wrap">
+    <header class="section-head reveal">
+      <p class="kicker"><span>09</span> Conclusions</p>
+      <h2>What the run tells us, and what to do next</h2>
+    </header>
+
+    <div class="table-wrap reveal">
+      <table class="mtable score" id="score-table">
+        <thead><tr><th></th><th>Gemini 3.5 Flash Lite</th><th>GPT-OSS 120B (Groq)</th><th>GPT-OSS 20B (Groq)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="grid-2 stagger">
+      <div class="card reveal">
+        <h3>For the adapters</h3>
+        <ul class="ticks">
+          <li><b>Gemini schema keywords.</b> Translate or drop <code>maxLength</code> and <code>minLength</code> (with a documented rule), or report which keyword caused <code>UnsupportedCapability</code>, so StructuredOutput can work on Gemini.</li>
+          <li><b>Groq tool calls.</b> Look at the one <code>InvalidResponse</code> from GPT-OSS 20B. ThroneRoom already retries Groq's <code>tool_use_failed</code>; the benchmark connector could do the same.</li>
+          <li><b>Proactive pacing.</b> Read Groq's <code>x-ratelimit-remaining-tokens</code> to wait before a call instead of after a 429.</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <h3>For the plugin</h3>
+        <ul class="ticks">
+          <li><b>Summaries.</b> Find out why no summary was accepted: Gemini's were truncated, so the summary output budget may be too small; Groq's hit the rate limit, so summaries could use the same retry path.</li>
+          <li><b>Request estimate.</b> Arandu's estimated request size was about 4–6× the input tokens the provider measured (median per model). It is a safe upper bound, but a closer estimate would delay pressure handling until it is needed.</li>
+          <li><b>Overhead.</b> No action needed: 1–2% of a turn. Keep the diagnostic timing to catch regressions.</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <h3>For the next benchmark run</h3>
+        <ul class="ticks">
+          <li>Use a plan with higher rate limits, or a longer delay for Groq, to measure the model rather than the quota; or keep the current limits on purpose and report them.</li>
+          <li>Interleave models instead of running them in blocks, so time-of-day effects do not favor one model.</li>
+          <li>Add more repeats for the cheap scenarios and test a third provider, as planned.</li>
+          <li>Reset the mutation counter per repeat, and make the cancellation prompt long enough that it cannot finish in 800 ms.</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <h3>Limits of this report</h3>
+        <ul class="ticks">
+          <li>One session, one PC, one network, in the Unity Editor. No player build or device was measured.</li>
+          <li>5 repeats per scenario: good for spotting problems, too few for fine-grained comparisons.</li>
+          <li>Expectations check behavior (status, tool use, a number or word in the answer), not answer quality.</li>
+          <li>Provider processing times are the providers' statements. Cost was not available from either provider.</li>
+          <li>No fault injection: retries appeared only because the live providers triggered them.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sources reveal">
+      <h3>Sources</h3>
+      <ul>
+        <li>Benchmark data: <code>gemini-gemini-3.5-flash-lite-…</code>, <code>groq-openai_gpt-oss-120b-…</code> and <code>groq-openai_gpt-oss-20b-…</code> exports (CSV, JSON, capture JSONL, debug report), session <code>20261124-005339</code> UTC.</li>
+        <li>Sample and plugin code: <code>AdapterBenchmark/README.md</code>, <code>ScenarioCatalog.cs</code>, <code>CaptureReader.cs</code>, <code>GeminiProtocol.cs</code>, <code>BoundedHttpClient.cs</code> and <code>.docs/UnityIntegration/DeveloperSetup.md</code> in the Arandu repository (HEAD <code>d56c513</code>).</li>
+        <li>Percentiles and repeated runs for provider benchmarks: <a href="https://mlflow.org/articles/llm-provider-benchmarking/" target="_blank" rel="noopener">MLflow, LLM provider benchmarking guide</a>; <a href="https://awslabs.github.io/llmeter/user_guide/metrics" target="_blank" rel="noopener">LLMeter, metrics and statistics</a>.</li>
+        <li>pass^k consistency metric: <a href="https://arxiv.org/abs/2406.12045" target="_blank" rel="noopener">Yao et al., τ-bench (2024)</a>.</li>
+        <li>Wilson interval for small samples: <a href="https://www.ucl.ac.uk/english-usage/statspapers/confidence-intervals.pdf" target="_blank" rel="noopener">Wallis, binomial confidence intervals</a>.</li>
+        <li>Cliff's delta and thresholds: <a href="https://rdrr.io/cran/rstatix/man/cliff_delta.html" target="_blank" rel="noopener">rstatix documentation</a> (Romano et al., 2006).</li>
+        <li>Groq limits and headers: <a href="https://console.groq.com/docs/rate-limits" target="_blank" rel="noopener">Groq rate limits</a>. Gemini schema support: <a href="https://ai.google.dev/gemini-api/docs/structured-output" target="_blank" rel="noopener">Gemini structured outputs</a>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div>
+      <div class="brand brand-foot"><span class="brand-mark" aria-hidden="true">A</span><span>Arandu</span></div>
+      <p>Reusable, bounded and inspectable AI agents for Unity games.</p>
+    </div>
+    <div>
+      <p><b>Lucas de Medeiros Ferreira</b><br>Applied AI Lab (Laboratório de IA Aplicada)<br>Master's in Software Engineering · UNIPAMPA</p>
+    </div>
+    <div>
+      <p class="faint">Report written November 23, 2026, from the exported benchmark files. The product tests were not re-run for this report.</p>
+      <a class="totop" href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="data/benchmark-data.js"></script>
+<script src="benchmark.js"></script>
+</body>
+</html>

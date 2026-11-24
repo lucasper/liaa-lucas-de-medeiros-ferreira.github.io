@@ -1,71 +1,69 @@
-# Arandu project website · V4
+# Arandu project website · V5
 
-**V4 (November 22, 2026)** is a copy of V3 with a new **Trailer** section right below the hero (after the tag strip), playing the 90-second English trailer. The earlier versions stay in [`../WebSite`](../WebSite/README.md), [`../WebSite_V2`](../WebSite_V2/README.md) and [`../WebSite_V3`](../WebSite_V3/README.md).
+**V5 (November 23, 2026)** is a copy of V4 with a new **Benchmark** tab (`benchmark.html`): a report on the first live run of the AdapterBenchmark sample, with interactive, animated charts. The earlier versions stay in [`../WebSite`](../WebSite/README.md), [`../WebSite_V2`](../WebSite_V2/README.md), [`../WebSite_V3`](../WebSite_V3/README.md) and [`../WebSite_V4`](../WebSite_V4/README.md).
 
-Changes from V3:
+Changes from V4:
 
-- New `#trailer` section, a "Trailer" link in the nav and a "Watch the trailer" button in the hero; the scroll cue now points to the trailer.
-- `assets/arandu-trailer-en.mp4` (H.264/AAC, 1080p30, 90 s, web-optimized with fast start, about 14 MB) and `assets/arandu-trailer-poster.jpg`. Source: `C:/Projects/AI/TrailerProject` (`AranduTrailerEN`).
-- Text fixes requested by the student: the hero and Problem section now say Arandu makes it **easy** to add AI agents (adding one is hard), the Context section defines an AI agent, the Samples section explains what a sample is before describing them ("ready to open and test"), and ThroneRoom's advisor "tries to fool you".
-- Real API status updated with the student's report (Nov 22): ThroneRoom was played and tested with both the real **Gemini and Groq** APIs. The Status, badges and Next steps no longer list Groq as pending; a third API is still open. Dated timeline entries were kept as they were.
-- Trailer styles appended at the end of `styles.css`; `script.js` is unchanged.
+- New page `benchmark.html` with `benchmark.css` and `benchmark.js`, in the same neon lilac and blue style and with the same motion layer (word reveals, scroll reveals, counters, spotlight and tilt, particle network).
+- `index.html`: a highlighted **Benchmark** tab in the nav, a "Benchmark report" button in the hero, and the footer date. It also loads `benchmark.css` for the tab style. Nothing else changed; `script.js` and `styles.css` are the same as V4.
+- `data/benchmark-data.js`: compact data generated from the benchmark exports (one row per turn, one row per model call, precomputed statistics).
+- `tools/analyze_benchmark.py`: the script that generates the data file.
 
-To publish V4, replace the repository root files with the files from this folder, including `assets/`.
+To publish V5, replace the repository root files with the files from this folder, including `assets/`, `data/` and `tools/`.
 
-The text below describes V3 and V2 and still applies.
+## The report
 
----
+Source data: the 12 files exported by AdapterBenchmark on November 23, 2026 (local time, UTC−4), stamped `20261124-005339` (UTC), in `%USERPROFILE%/AppData/LocalLow/DefaultCompany/AranduUnity/AdapterBenchmarkResults`. Three models, ten scenarios, five repeats, 285 turns:
 
-## V3 notes
+| Adapter | Model | Turns passed | Retries |
+| --- | --- | --- | --- |
+| Gemini | `gemini-3.5-flash-lite` | 89/95 | 2 |
+| Groq | `openai/gpt-oss-120b` | 94/95 | 51 |
+| Groq | `openai/gpt-oss-20b` | 93/95 | 37 |
 
-**V3 (November 17, 2026)** is a copy of V2 without the perpetual left-to-right "wave" animations, at the student's request. Removed: the light streak along the top of each section, the shine on kicker and number badges, the shimmer on stat, test and commit tiles, the shine on the kingdom bars, the scan across the commit chart, the sweep in the guiding question, the pulse travelling along the agent loop and the moving footer gradient (now static). The second ticker row now moves in the same direction as the first. Content, `index.html` and `script.js` are the same as V2; only `styles.css` changed. V2 stays in [`../WebSite_V2`](../WebSite_V2/README.md).
+Sections: key findings, the benchmark (glossary, setup, scenarios), reading the numbers (method), reliability, speed, where the time goes, rate limits and retries, plugin features, provider view, conclusions (scorecard, recommendations, limits, sources).
 
-The text below describes V2 and still applies.
+Charts (Apache ECharts 5.5.1 from jsDelivr; each chart starts its entrance animation when it scrolls into view):
 
----
-
-Second version of the static site that presents and tracks the Arandu project for the Applied AI Lab course (Laboratório de IA Aplicada), Master's in Software Engineering, UNIPAMPA. Author: Lucas de Medeiros Ferreira.
-
-The first version stays untouched in [`../WebSite`](../WebSite/README.md). V2 was created on November 17, 2026, at the student's request:
-
-1. Content updated with the 19 commits on the local `main` branch of `C:/Projects/Arandu` after `68bd0ed`, from `651dbb9` (Nov 11) to HEAD `194ab29` (Nov 16).
-2. Full visual rework with animations in every section.
-3. Base colors changed to neon lilac and blue on a dark background.
-4. The whole site is in English.
-
-Repository: **[lucasper/liaa-lucas-de-medeiros-ferreira.github.io](https://github.com/lucasper/liaa-lucas-de-medeiros-ferreira.github.io)** · Live site: **https://lucasper.github.io/liaa-lucas-de-medeiros-ferreira.github.io/**. To publish V2, replace the repository root files with the files from this folder.
-
-## Files
-
-| File | Purpose |
+| Chart | Interaction |
 | --- | --- |
-| `index.html` | Content: context, problem, solution, samples, what's new, progress, status and roadmap |
-| `styles.css` | Neon lilac/blue theme, animations and responsive layout |
-| `script.js` | Particle network, typed motto, terminal flow, scroll reveal, counters, spotlight and tilt, tabs, timeline progress and filters |
-| `.nojekyll` | Tells GitHub Pages to serve the files as they are |
+| Pass-rate heatmap (scenario × model) | Cells pop in; click a cell to list its turns |
+| Turn time box plots with every turn as a dot (log scale) | Toggle total time / without rate-limit waits; dots move to their new place |
+| Sorted turns (cumulative share) and simple-scenario medians | Toggle total / no waits |
+| Time split per model (Arandu & Unity, network, provider, rate-limit wait) | Scenario picker, share / seconds toggle |
+| Arandu & Unity time per turn and its parts | Hover for each turn |
+| Whole session timeline | "Replay the session" button |
+| Rate-limit wait vs. request size; wait asked vs. wait done | Hover |
+| Feature charts: tool calls, context size, summaries, skill switch, cancellation | Context toggle (history size / estimated vs. measured tokens) |
+| Output speed and HTTP vs. provider time | Hover |
 
-No build step. Serve the folder (for example `python -m http.server --directory WebSite_V2`) or open `index.html` in a browser to preview.
+Data cleaning (student's report, Nov 23): Unity was minimized a few times during the Gemini run, which paused the Editor. The four Gemini turns that ran while minimized (Unity hand-back about 100 ms instead of about 4 ms: SkillSwitch r4 t2, ContextPressure r1 t5, r3 t6, r3 t7) are flagged `paused` and left out of all timing statistics; their pass/fail results are kept. The 31.5 minutes of pauses between turns are removed from the session clock, so Gemini's active run time is 10.2 min. The rule lives in `tools/analyze_benchmark.py` (`PAUSE_FRAME_MS`).
 
-Motion is always on, by the student's request: the site ignores the system "reduce motion" setting. Animations change only `transform` and `opacity`, and the particle network uses pre-rendered glow sprites, so they run smoothly on PCs and phones. Phones get fewer particles and no pointer effects.
+Method notes: medians and p90 instead of means; 95% Wilson intervals for pass rates; pass^5 (all repeats passed) from τ-bench; Cliff's delta for model comparisons; rate-limit waits separated from model time. Chart colors were checked with the dataviz palette validator against the dark chart surface.
 
-The Progress section has two views. **By delivery** keeps the class updates. **By commit** is built by `script.js` from the `COMMITS` list (hash, date, area, title, files, lines added and removed, explanation): stats, a per-day activity chart with the class dates marked, area filters and a commit log grouped by delivery. Add new commits to that list after each update.
+## Regenerating the data
 
-## The 19 commits, by front
+```
+python -I tools/analyze_benchmark.py "<AdapterBenchmarkResults folder>" data/benchmark-data.js
+```
 
-| Front | Commits |
-| --- | --- |
-| Performance (4) | `8759b87` thread-pool orchestration · `412dce8` gate hot path · `1db9abc` compiled JSON schemas · `273d544` context measurement reuse |
-| Reliability (7) | `3d7c666` tombstones, rebinding, epoch closure · `ca699bc` operation reconciliation · `d932478` gate callbacks, durable journal · `ddcd458` failure classification · `1f71fe5` mutation fairness · `add533c` OperationLedger · `40de542` review fixes |
-| Adapters (2) | `f0eb74f` shared BoundedHttpClient · `521863a` Groq in ThroneRoom with retry |
-| Diagnostics (3) | `5e62495` debug mode for recovery/journal/reconciliation · `6ac5285` Arandu vs provider timing · `194ab29` AdapterBenchmark sample |
-| Process (3) | `651dbb9` review task plans · `b6e1efc` context engineering rework · `1915718` CLAUDE.md |
+The script also writes `data/benchmark-data.js.json` (same content as plain JSON); delete it if you do not want to publish it. Text in `benchmark.html` quotes figures from this run; review it if you regenerate with new data.
 
 ## Sources and limits
 
-Facts come from the commit list and `.docs/ProjectContext.md` (inspected Nov 16) in `C:/Projects/Arandu`, the AdapterBenchmark README and the progress records in `AranduContext/Contexto`. Test counts are the latest records in those documents; they were not re-run for the site. The thread-pool frame figure (2.560 ms vs 0.175 ms) is a local Play Mode measurement. The real Gemini test is reported by the student. Real Groq calls, a live AdapterBenchmark run, player and device runs are not validated yet. The academic schedule is kept unchanged.
+Facts come from the exported files and from the Arandu repository (HEAD `d56c513`): the AdapterBenchmark README, `ScenarioCatalog.cs`, `CaptureReader.cs`, `GeminiProtocol.cs`, `BoundedHttpClient.cs` and `.docs/UnityIntegration/DeveloperSetup.md`. The product tests were not re-run. Groq's rate limits are quoted from its public documentation; this account's limits were not checked. Provider processing times are the providers' own statements.
 
-## Updating the progress
+The text below describes V4 and still applies.
 
-- Add a new `<li class="tl">` entry to the timeline and move the `tl-current` class to it.
-- Update the What's new, Status and footer dates.
-- Keep the Roadmap milestones unchanged unless the student changes them; move `ms-now` to the current milestone.
+---
+
+## V4 notes
+
+**V4 (November 22, 2026)** is a copy of V3 with a new **Trailer** section right below the hero (after the tag strip), playing the 90-second English trailer.
+
+- New `#trailer` section, a "Trailer" link in the nav and a "Watch the trailer" button in the hero; the scroll cue now points to the trailer.
+- `assets/arandu-trailer-en.mp4` (H.264/AAC, 1080p30, 90 s, web-optimized with fast start, about 14 MB) and `assets/arandu-trailer-poster.jpg`. Source: `C:/Projects/AI/TrailerProject` (`AranduTrailerEN`).
+- Text fixes requested by the student: Arandu makes it **easy** to add AI agents, the Context section defines an AI agent, the Samples section explains what a sample is, and ThroneRoom's advisor "tries to fool you".
+- Real API status: ThroneRoom was played and tested with both the real **Gemini and Groq** APIs (student's report, Nov 22).
+
+See [`../WebSite_V4/README.md`](../WebSite_V4/README.md) for the full V4, V3 and V2 notes (files, motion rules, commit view and how to update the progress).
