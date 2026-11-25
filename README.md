@@ -1,4 +1,24 @@
-# Arandu project website · V6
+# Arandu project website · V7
+
+**V7 (November 24, 2026)** is a copy of V6 with smooth page and language transitions and an updated roadmap. V6 and the earlier versions stay in their own folders.
+
+Changes from V6:
+
+- **Page transitions** (`lang.js`, `styles.css` "V7 · Page transitions"). A link to another page of the site (the Benchmark tab, the report buttons, the links back to the home page) fades the content out under a dark curtain, then the next page fades in with a short upward slide. The top bar stays above the curtain, so it does not blink. Links inside the same page still just scroll. Without JavaScript the links work as before, with no animation.
+- **Language switch transition.** The active highlight is now a thumb that slides from Eng to PT-BR (or back). The page content slides and blurs out in the same direction, the nav labels fade, and the other language's page slides in from the other side. The section being read (`#id`) is kept, as in V6. `lang.js` passes the kind of transition to the next page in `sessionStorage` (key `arandu-transition`), read before the first paint.
+- **Reduced motion.** With the system's "reduce motion" setting on, the slide and blur are dropped and only the fade stays.
+- **Back/forward cache.** A page restored with the browser's Back button is shown at once, not faded out.
+- **Roadmap** (`index.html`, `index.pt-br.html`). We are now in the Evaluation milestone (NOV W4): it is the highlighted one, Refinement is marked done (✓) and the progress beam reaches Evaluation. The "Next steps" box now says the benchmark is done (with a link to the Benchmark page) and lists the four fixes the benchmark pointed to, each linking to its evidence: Gemini adapter rejecting the StructuredOutput schema (`maxLength`), no context summary accepted (0 of 30), Groq waiting only after a 429 (about 91% of Groq turn time), and one unreadable Groq tool call. Then the same scenarios run again to confirm the fixes; the third API is still to be chosen. Facts come from the V5 benchmark report (findings and conclusions sections).
+- The "this week" roadmap label now reads "esta semana" on the PT-BR page (it showed in English in V6).
+- Footer date and note updated on both home pages.
+
+To publish V7, replace the repository root files with the files from this folder (same file set as V6; `lang.js`, `styles.css`, `index.html` and `index.pt-br.html` changed).
+
+The text below describes V6 and still applies.
+
+---
+
+## V6 notes
 
 **V6 (November 24, 2026)** is a copy of V5 with an **Eng / PT-BR language switch** at the top of every page, a full Brazilian Portuguese version of the site, and the re-recorded trailers. V5 and the earlier versions stay in their own folders.
 

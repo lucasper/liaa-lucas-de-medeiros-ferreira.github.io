@@ -651,22 +651,25 @@
       <div class="ms spot reveal"><span class="ms-when">SEP W4</span><h3>Base architecture</h3><p>Detailed architecture definition</p></div>
       <div class="ms spot reveal"><span class="ms-when">OCT W3</span><h3>Agent runtime</h3><p>Agentic loop, tools/skills and API integration</p></div>
       <div class="ms spot reveal"><span class="ms-when">NOV W1</span><h3>Plugin v0.0.1</h3><p>Runtime integration and sample scene</p></div>
-      <div class="ms spot reveal ms-now"><span class="ms-when">NOV W3</span><h3>Refinement</h3><p>Logs, errors, timeouts and tests</p></div>
-      <div class="ms spot reveal"><span class="ms-when">NOV W4</span><h3>Evaluation</h3><p>Experiments, demonstration and report</p></div>
+      <div class="ms spot reveal ms-done"><span class="ms-when">NOV W3</span><h3>Refinement</h3><p>Logs, errors, timeouts and tests</p></div>
+      <div class="ms spot reveal ms-now"><span class="ms-when">NOV W4</span><h3>Evaluation</h3><p>Experiments, demonstration and report</p></div>
     </div>
 
     <div class="next reveal">
       <div class="next-badge">Next steps</div>
-      <h3>Experiments and reports built from <code>ARANDU_DIAGNOSTICS</code> data</h3>
-      <div class="next-steps">
-        <span>Run AdapterBenchmark</span><span>Capture with debug mode</span><span>Generate reports</span>
+      <h3>Fix the issues the benchmark found</h3>
+      <a class="next-done" href="benchmark.html">
+        <i aria-hidden="true">✓</i>
+        <span><b>Benchmark done.</b> AdapterBenchmark ran on 3 models, 10 scenarios and 285 turns. The full report is on the Benchmark page.</span>
+        <em aria-hidden="true">→</em>
+      </a>
+      <div class="fixes">
+        <a class="fix" href="benchmark.html#reliability"><span class="fix-tag">Gemini adapter</span><b>StructuredOutput is rejected</b><span>The schema uses <code>maxLength</code>, which the adapter does not accept. 0 of 5 turns passed.</span><em>Translate or drop the keyword, or name it in the error.</em></a>
+        <a class="fix" href="benchmark.html#features"><span class="fix-tag">Plugin</span><b>No context summary accepted</b><span>0 of 30. Gemini's summaries were cut off and Groq's hit the rate limit.</span><em>Give summaries a bigger output budget and the same retry path as other requests.</em></a>
+        <a class="fix" href="benchmark.html#limits"><span class="fix-tag">Groq adapter</span><b>Waiting only after a 429</b><span>About 91% of Groq turn time was spent waiting for the rate limit.</span><em>Read <code>x-ratelimit-remaining-tokens</code> and wait before the call.</em></a>
+        <a class="fix" href="benchmark.html#reliability"><span class="fix-tag">Groq adapter</span><b>One unreadable tool call</b><span>GPT-OSS 20B once sent a tool call the adapter could not read.</span><em>Retry <code>tool_use_failed</code> in the benchmark, as ThroneRoom already does.</em></a>
       </div>
-      <div class="apis">
-        <div class="api"><b>Gemini</b><span>Already played and tested in ThroneRoom</span></div>
-        <div class="api"><b>Groq</b><span>Already played and tested</span></div>
-        <div class="api api-tbd"><b>One more API</b><span>To be chosen</span></div>
-      </div>
-      <p>The same scenarios will run on each API, so the reports can compare them.</p>
+      <p>Then run the same scenarios again to confirm the fixes. The third API is still to be chosen.</p>
     </div>
   </div>
 </section>
@@ -683,7 +686,7 @@
       <p><b>Lucas de Medeiros Ferreira</b><br>Applied AI Lab (Laboratório de IA Aplicada)<br>Master's in Software Engineering · UNIPAMPA</p>
     </div>
     <div>
-      <p class="faint">Last updated: November 24, 2026 (Eng / PT-BR language switch, new trailer narration).<br>Facts from the project repository (HEAD <code>194ab29</code>, Nov 16) and the weekly progress records.</p>
+      <p class="faint">Last updated: November 24, 2026 (evaluation phase: benchmark done, next steps are its fixes; smooth page and language transitions).<br>Facts from the project repository (HEAD <code>194ab29</code>, Nov 16) and the weekly progress records.</p>
       <a class="totop" href="#top">Back to top ↑</a>
     </div>
   </div>

@@ -643,7 +643,7 @@ h1 .w { padding-bottom: .14em; }
 .ms-beam { position: absolute; left: 10%; right: 10%; top: 10px; height: 2px; border-radius: 2px; background: rgba(167, 139, 250, .18); }
 .ms-beam i { position: absolute; left: 0; top: 0; height: 100%; width: 0; border-radius: 2px; background: var(--grad); box-shadow: var(--glow-l); transition: width 2.2s var(--ease) .4s; }
 .ms-beam i::after { content: ""; position: absolute; right: -6px; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px #fff, 0 0 26px var(--blue); animation: ping 1.8s infinite; }
-.ms-beam.visible i { width: 75%; }
+.ms-beam.visible i { width: 100%; }
 .js .ms-beam.reveal { transform: none; }
 .next-steps span { transition: transform .35s var(--ease), border-color .3s; }
 .next-steps span:hover { transform: translateY(-3px); border-color: var(--line-2); }
@@ -797,4 +797,95 @@ h1 .w { padding-bottom: .14em; }
   .nav a { padding: 12px; font-size: .92rem; }
   .lang-switch { margin-left: auto; margin-right: 10px; }
   .nav a.nav-tab { align-self: flex-start; }
+}
+
+/* ============ V7 · Page transitions ============
+   lang.js sets html[data-enter] before the first paint ("page", "lang-next", "lang-prev" or "none")
+   and adds html.is-leaving + html[data-leave] before going to another page.
+   A dark curtain sits under the top bar, so the header (and the language switch) stays in place
+   while the content fades out and the next page fades in. */
+html::after {
+  content: ""; position: fixed; inset: 0; z-index: 49; pointer-events: none;
+  background: radial-gradient(ellipse 70% 55% at 50% 35%, rgba(124, 58, 237, .14), transparent 70%), var(--bg);
+  opacity: 0; visibility: hidden;
+}
+html[data-enter="page"]::after,
+html[data-enter^="lang"]::after { animation: curtainOut .62s cubic-bezier(.4, 0, .2, 1) both; }
+html.is-leaving::after { animation: curtainIn .42s cubic-bezier(.4, 0, .2, 1) both; }
+@keyframes curtainOut { from { opacity: 1; visibility: visible; } to { opacity: 0; visibility: hidden; } }
+@keyframes curtainIn { from { opacity: 0; visibility: visible; } to { opacity: 1; visibility: visible; } }
+
+/* Content entering */
+html[data-enter="page"] main,
+html[data-enter="page"] .footer { animation: pageIn .75s var(--ease) backwards; }
+html[data-enter="lang-next"] main,
+html[data-enter="lang-next"] .footer { animation: langInNext .75s var(--ease) backwards; }
+html[data-enter="lang-prev"] main,
+html[data-enter="lang-prev"] .footer { animation: langInPrev .75s var(--ease) backwards; }
+html[data-enter^="lang"] .nav a { animation: labelIn .6s ease backwards .1s; }
+@keyframes pageIn { from { transform: translateY(18px); } }
+@keyframes langInNext { from { transform: translateX(36px); filter: blur(5px); } }
+@keyframes langInPrev { from { transform: translateX(-36px); filter: blur(5px); } }
+@keyframes labelIn { from { opacity: 0; filter: blur(3px); } }
+
+/* Content leaving */
+html.is-leaving main, html.is-leaving .footer {
+  transition: transform .42s cubic-bezier(.4, 0, .2, 1), filter .42s ease;
+  transform: translateY(-12px);
+}
+html.is-leaving[data-leave="lang-next"] main, html.is-leaving[data-leave="lang-next"] .footer { transform: translateX(-36px); filter: blur(5px); }
+html.is-leaving[data-leave="lang-prev"] main, html.is-leaving[data-leave="lang-prev"] .footer { transform: translateX(36px); filter: blur(5px); }
+html.is-leaving[data-leave^="lang"] .nav a { transition: opacity .3s ease, filter .3s ease; opacity: 0; filter: blur(3px); }
+html.is-leaving { pointer-events: none; }
+
+/* Language switch: a thumb slides behind the active language (added by lang.js; without JS the active link keeps its own background) */
+.lang-switch { position: relative; }
+.lang-thumb {
+  position: absolute; left: 0; top: 3px; bottom: 3px; width: 0; border-radius: 999px; z-index: 0;
+  background: var(--grad); box-shadow: var(--glow-l);
+  transition: transform .45s cubic-bezier(.65, 0, .25, 1), width .45s cubic-bezier(.65, 0, .25, 1);
+}
+.lang-switch.has-thumb a { position: relative; z-index: 1; transition: color .35s ease .08s; }
+.lang-switch.has-thumb a.active { background: transparent; box-shadow: none; }
+
+/* Roadmap label in Portuguese */
+html[lang^="pt"] .ms-now::after { content: "esta semana"; }
+
+/* Reduced motion: keep the fade, drop the slide and the blur. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-enter] main, html[data-enter] .footer { animation: none !important; }
+  html.is-leaving main, html.is-leaving .footer { transform: none !important; filter: none !important; }
+  html[data-enter^="lang"] .nav a, html.is-leaving[data-leave^="lang"] .nav a { filter: none !important; }
+}
+
+/* ============ V7 · Roadmap: evaluation phase ============ */
+.ms-done .ms-when { color: var(--ok); border-color: rgba(94, 234, 212, .35); }
+.ms-done .ms-when::after { content: " ✓"; }
+.next-done {
+  display: flex; align-items: center; gap: 14px; margin: 18px 0 20px; padding: 14px 18px; border-radius: 14px;
+  background: rgba(7, 6, 26, .55); border: 1px solid rgba(94, 234, 212, .35); text-decoration: none; color: var(--ink);
+  transition: transform .4s var(--ease), border-color .3s, box-shadow .4s;
+}
+.next-done i { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font-style: normal; font-weight: 700; color: #0b0820; background: var(--ok); box-shadow: 0 0 16px rgba(94, 234, 212, .45); }
+.next-done span { font-size: .95rem; color: var(--muted); }
+.next-done span b { color: #fff; }
+.next-done em { margin-left: auto; font-style: normal; font-size: 1.3rem; color: var(--ok); transition: transform .35s var(--ease); }
+.next-done:hover { transform: translateY(-3px); border-color: var(--ok); box-shadow: 0 0 26px rgba(94, 234, 212, .2); }
+.next-done:hover em { transform: translateX(5px); }
+.fixes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+.fix {
+  display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border-radius: 14px; text-decoration: none; color: var(--ink);
+  background: rgba(7, 6, 26, .55); border: 1px solid var(--line);
+  transition: transform .4s var(--ease), border-color .3s, box-shadow .4s;
+}
+.fix:hover { transform: translateY(-4px); border-color: var(--blue); box-shadow: var(--glow-b); }
+.fix-tag { align-self: flex-start; font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; padding: 3px 8px; border-radius: 6px; color: var(--lilac); border: 1px solid var(--line); }
+.fix b { color: #fff; font-family: var(--display); font-size: 1.05rem; }
+.fix span:not(.fix-tag) { font-size: .88rem; color: var(--muted); }
+.fix em { font-style: normal; font-size: .88rem; color: var(--ink); padding-left: 18px; position: relative; }
+.fix em::before { content: "→"; position: absolute; left: 0; color: var(--blue); }
+@media (max-width: 760px) {
+  .fixes { grid-template-columns: 1fr; }
+  .next-done { align-items: flex-start; }
+  .next-done em { display: none; }
 }
