@@ -425,6 +425,8 @@ h2 { font-size: clamp(1.8rem, 3.6vw, 2.7rem); }
 .p-build { color: var(--blue); border-color: rgba(56, 189, 248, .4); background: rgba(56, 189, 248, .08); }
 .p-quality { color: var(--lilac); border-color: rgba(192, 132, 252, .4); background: rgba(192, 132, 252, .08); }
 .p-next { color: var(--ok); border-color: rgba(94, 234, 212, .4); background: rgba(94, 234, 212, .08); }
+.p-eval { color: #fcd34d; border-color: rgba(252, 211, 77, .4); background: rgba(252, 211, 77, .08); }
+.tl-card a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Status */
 .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }

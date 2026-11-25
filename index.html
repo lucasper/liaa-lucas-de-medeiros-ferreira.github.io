@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7.2">
+  <link rel="stylesheet" href="styles.css?v=7.3">
   <link rel="stylesheet" href="benchmark.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c084fc'/%3E%3Cstop offset='1' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230d0b26'/%3E%3Cpath d='M32 12 50 52H40l-8-19-8 19H14z' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="alternate" hreflang="en" data-lang="en" href="index.html">
@@ -445,6 +445,7 @@
       <button class="chip" data-filter="design">Design</button>
       <button class="chip" data-filter="build">Implementation</button>
       <button class="chip" data-filter="quality">Quality</button>
+      <button class="chip" data-filter="eval">Evaluation</button>
     </div>
 
     <ol class="timeline">
@@ -524,9 +525,9 @@
           </ul>
         </details>
       </li>
-      <li class="tl tl-current reveal" data-cat="quality">
+      <li class="tl reveal" data-cat="quality">
         <div class="tl-date">Nov 16</div>
-        <details class="tl-card" open>
+        <details class="tl-card">
           <summary><span class="pill p-quality">Quality</span><h3>Performance, reliability and AdapterBenchmark</h3></summary>
           <ul>
             <li><b>Performance</b>: opt-in thread-pool orchestration, faster gate, reused schemas and context measurements.</li>
@@ -537,12 +538,25 @@
           </ul>
         </details>
       </li>
-      <li class="tl tl-next reveal" data-cat="quality">
+      <li class="tl tl-current reveal" data-cat="eval">
+        <div class="tl-date">Nov 24</div>
+        <details class="tl-card" open>
+          <summary><span class="pill p-eval">Evaluation</span><h3>Trailer and first benchmark</h3></summary>
+          <ul>
+            <li><b>Trailer</b>: a 90-second video, in English and Brazilian Portuguese, at the top of this site.</li>
+            <li><b>Benchmark</b>: first live AdapterBenchmark run (Nov 23) on Gemini 3.5 Flash Lite and Groq GPT-OSS 120B and 20B. 10 scenarios, 5 repeats, 285 turns.</li>
+            <li><b>Results</b>: 89/95, 94/95 and 93/95 expectations met. Arandu's own time was 7–14 ms per turn (median), 1–2% of the turn.</li>
+            <li><b>Found</b>: four issues to fix, from the Gemini StructuredOutput schema to Groq rate-limit waits. <a href="benchmark.html">Full report →</a></li>
+            <li>Real APIs: ThroneRoom was also played with Gemini and Groq (student's report).</li>
+          </ul>
+        </details>
+      </li>
+      <li class="tl tl-next reveal" data-cat="eval">
         <div class="tl-date">Next</div>
         <div class="tl-card tl-card-next">
           <span class="pill p-next">Planned</span>
-          <h3>Experiments and reports</h3>
-          <p>Run AdapterBenchmark on Groq, Gemini and one more API, and build reports from the <code>ARANDU_DIAGNOSTICS</code> data.</p>
+          <h3>Fix and run again</h3>
+          <p>Fix the <a href="#roadmap">four issues</a> the benchmark found, run the same scenarios again to confirm, then test a third API (still to be chosen).</p>
         </div>
       </li>
     </ol>
@@ -684,7 +698,7 @@
       <p><b>Lucas de Medeiros Ferreira</b><br>Applied AI Lab (Laboratório de IA Aplicada)<br>Master's in Software Engineering · UNIPAMPA</p>
     </div>
     <div>
-      <p class="faint">Last updated: November 24, 2026 (evaluation phase: benchmark done, next steps are its fixes; smooth page and language transitions).<br>Facts from the project repository (HEAD <code>194ab29</code>, Nov 16) and the weekly progress records.</p>
+      <p class="faint">Last updated: November 25, 2026 (evaluation phase: the Nov 24 delivery was the trailer and the benchmark; next steps are its fixes).<br>Facts from the project repository (HEAD <code>194ab29</code>, Nov 16) and the weekly progress records.</p>
       <a class="totop" href="#top">Back to top ↑</a>
     </div>
   </div>
