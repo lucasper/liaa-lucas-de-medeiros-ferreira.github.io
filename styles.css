@@ -360,7 +360,7 @@ h2 { font-size: clamp(1.8rem, 3.6vw, 2.7rem); }
 
 .bench { display: grid; gap: 22px; }
 .pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; position: relative; }
-.pstage { position: relative; padding: 20px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); text-align: center; }
+.pstage { position: relative; padding: 20px; border-radius: 16px; background: linear-gradient(var(--panel), var(--panel)), var(--bg-2); border: 1px solid var(--line); text-align: center; }
 .pstage b { display: block; font-family: var(--display); font-size: 1.25rem; color: #fff; }
 .pstage span { font-size: .88rem; color: var(--muted); }
 .pstage:not(:last-child)::after { content: "›"; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); z-index: 2; color: var(--blue); font-size: 1.6rem; text-shadow: var(--glow-b); }
@@ -475,7 +475,7 @@ h2 { font-size: clamp(1.8rem, 3.6vw, 2.7rem); }
 .ms p { margin: 0; font-size: .9rem; color: var(--muted); }
 .ms-now { border-color: rgba(192, 132, 252, .55); box-shadow: 0 0 34px rgba(124, 58, 237, .3); }
 .ms-now .ms-when { color: #0b0820; background: var(--grad); border-color: transparent; box-shadow: var(--glow-l); animation: markPulse 3s infinite; }
-.ms-now::after { content: "this week"; position: absolute; top: 14px; right: 14px; font-family: var(--mono); font-size: .64rem; color: var(--lilac); }
+.ms-flag { position: absolute; top: 26px; right: 16px; font-family: var(--mono); font-size: .64rem; color: var(--lilac); }
 .next { margin-top: 48px; padding: 34px; border-radius: 22px; position: relative; overflow: hidden; background: linear-gradient(135deg, rgba(124, 58, 237, .28), rgba(37, 99, 235, .22)); border: 1px solid var(--line-2); }
 .next::before { content: ""; position: absolute; width: 380px; height: 380px; right: -120px; top: -160px; border-radius: 50%; background: radial-gradient(circle, rgba(56, 189, 248, .35), transparent 65%); animation: float2 14s ease-in-out infinite; }
 .next > * { position: relative; }
@@ -639,13 +639,7 @@ h1 .w { padding-bottom: .14em; }
 .mtable tbody tr:hover { transform: translateX(4px); }
 
 /* Roadmap beam */
-.milestones { padding-top: 34px; }
-.ms-beam { position: absolute; left: 10%; right: 10%; top: 10px; height: 2px; border-radius: 2px; background: rgba(167, 139, 250, .18); }
-.ms-beam i { position: absolute; left: 0; top: 0; height: 100%; width: 0; border-radius: 2px; background: var(--grad); box-shadow: var(--glow-l); transition: width 2.2s var(--ease) .4s; }
-.ms-beam i::after { content: ""; position: absolute; right: -6px; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px #fff, 0 0 26px var(--blue); animation: ping 1.8s infinite; }
-.ms-beam.visible i { width: 100%; }
-.js .ms-beam.reveal { transform: none; }
-.next-steps span { transition: transform .35s var(--ease), border-color .3s; }
+.js .next-steps span { transition: transform .35s var(--ease), border-color .3s; }
 .next-steps span:hover { transform: translateY(-3px); border-color: var(--line-2); }
 .api { transition: transform .4s var(--ease), border-color .3s, box-shadow .4s; }
 .api:hover { transform: translateY(-4px); border-color: var(--blue); box-shadow: var(--glow-b); }
@@ -742,9 +736,7 @@ h1 .w { padding-bottom: .14em; }
   .cdate { grid-column: 1; grid-row: 2; }
   .ctitle { grid-column: 2; grid-row: 1 / span 2; }
   .cside { grid-column: 1 / -1; grid-row: 3; margin-top: 6px; }
-  .ms-beam { display: none; }
-  .milestones { padding-top: 0; }
-}
+  }
 @media (max-width: 560px) {
   .view-switch { display: flex; width: 100%; }
   .vbtn { flex: 1; padding: 10px 8px; }
@@ -787,9 +779,9 @@ h1 .w { padding-bottom: .14em; }
 .lang-switch a:hover { color: #fff; }
 .lang-switch a.active { color: #0b0820; background: var(--grad); box-shadow: var(--glow-l); font-weight: 600; }
 .lang-switch a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-@media (max-width: 1360px) {
-  .nav a { padding: 8px 9px; font-size: .88rem; }
-}
+/* V7: the bar content is 1160 px wide at most, so the compact links apply at every width (wider padding pushed the switch out on wide screens). */
+.nav a { padding: 8px 9px; font-size: .88rem; white-space: nowrap; }
+.nav a::after { left: 9px; right: 9px; }
 @media (max-width: 1220px) {
   .menu-toggle { display: block; }
   .nav { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; padding: 10px 16px 18px; background: rgba(7, 6, 26, .96); border-bottom: 1px solid var(--line); transform: translateY(-8px); opacity: 0; pointer-events: none; transition: all .3s var(--ease); }
@@ -847,9 +839,6 @@ html.is-leaving { pointer-events: none; }
 }
 .lang-switch.has-thumb a { position: relative; z-index: 1; transition: color .35s ease .08s; }
 .lang-switch.has-thumb a.active { background: transparent; box-shadow: none; }
-
-/* Roadmap label in Portuguese */
-html[lang^="pt"] .ms-now::after { content: "esta semana"; }
 
 /* Reduced motion: keep the fade, drop the slide and the blur. */
 @media (prefers-reduced-motion: reduce) {

@@ -12,7 +12,15 @@ Changes from V6:
 - The "this week" roadmap label now reads "esta semana" on the PT-BR page (it showed in English in V6).
 - Footer date and note updated on both home pages.
 
-To publish V7, replace the repository root files with the files from this folder (same file set as V6; `lang.js`, `styles.css`, `index.html` and `index.pt-br.html` changed).
+To publish V7, replace the repository root files with the files from this folder (same file set as V6; `lang.js`, `styles.css`, `index.html` and `index.pt-br.html` changed). V7 was published to GitHub Pages on November 24, 2026 (commit `6de0315`), replacing V6 at the repository root.
+
+Visual fixes (November 24, 2026, after the first V7 publication, requested by the student):
+
+- **Roadmap.** The progress beam was removed. The four finished milestones (SEP W4, OCT W3, NOV W1, NOV W3) show a ✓. Evaluation (NOV W4) stays highlighted as the current step, without a ✓, because its fixes are still open.
+- **Evaluation card outline.** The "this week" label was drawn with `.ms-now::after`, the same layer the spotlight cards use for their hover border, so hovering showed a second, shifted frame and the label never appeared. The label is now its own element (`.ms-flag`), so hover shows one border and the label reads "this week" / "esta semana".
+- **Top bar.** Above 1360 px the nav links used wider padding and no longer fit in the 1160 px bar, so the Benchmark tab wrapped onto two lines and pushed the language switch off the edge (worst on the PT-BR pages). The compact link size now applies at every width and links never wrap. All four pages were checked at 1225 px and 1380 px.
+- **AdapterBenchmark pipeline** (home page, What's new → AdapterBenchmark tab). The connector line ran across the semi-transparent stage cards and under their text. The stages are now opaque, so the line and arrows only show in the gaps.
+- The four pages load `styles.css?v=7.1` and `lang.js?v=7.1`, so browsers fetch the new files instead of a cached copy.
 
 The text below describes V6 and still applies.
 
