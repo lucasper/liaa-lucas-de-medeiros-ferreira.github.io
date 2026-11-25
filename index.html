@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7.1">
+  <link rel="stylesheet" href="styles.css?v=7.2">
   <link rel="stylesheet" href="benchmark.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c084fc'/%3E%3Cstop offset='1' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230d0b26'/%3E%3Cpath d='M32 12 50 52H40l-8-19-8 19H14z' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="alternate" hreflang="en" data-lang="en" href="index.html">
@@ -314,7 +314,7 @@
         <p>The benchmark runs adapter × model × scenario × repeat. Each repeat uses a fresh scope and session, and each turn is checked against a concrete expectation.</p>
         <div class="badges">
           <span class="badge">Only with <code>ARANDU_DIAGNOSTICS</code></span>
-          <span class="badge">Offline tests only · no live run recorded yet</span>
+          <a class="badge badge-ok" href="benchmark.html">First live run on Nov 23 · 285 turns · see the report →</a>
         </div>
       </div>
 
@@ -585,7 +585,7 @@
         </div>
         <div class="live-check">
           <b>Real API</b>
-          <span>Gemini and Groq played and tested by the student.</span>
+          <span>Gemini and Groq played and tested by the student. AdapterBenchmark ran live on Nov 23: 3 models, 285 turns (<a href="benchmark.html">report</a>).</span>
         </div>
       </div>
       <div class="status-col spot reveal">
@@ -593,9 +593,8 @@
         <p class="st-desc">Open points for the evaluation stage.</p>
         <ul class="opens">
           <li>Real calls to a third API</li>
-          <li>A live AdapterBenchmark run</li>
           <li>Measured quality of decisions and summaries</li>
-          <li>Real cost and service latency</li>
+          <li>Real cost, and latency beyond one session on one PC</li>
           <li>Player builds, IL2CPP, WebGL and devices</li>
           <li>Durability after restart</li>
         </ul>

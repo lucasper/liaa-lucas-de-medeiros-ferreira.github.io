@@ -21,6 +21,9 @@ Visual fixes (November 24, 2026, after the first V7 publication, requested by th
 - **Top bar.** Above 1360 px the nav links used wider padding and no longer fit in the 1160 px bar, so the Benchmark tab wrapped onto two lines and pushed the language switch off the edge (worst on the PT-BR pages). The compact link size now applies at every width and links never wrap. All four pages were checked at 1225 px and 1380 px.
 - **AdapterBenchmark pipeline** (home page, What's new → AdapterBenchmark tab). The connector line ran across the semi-transparent stage cards and under their text. The stages are now opaque, so the line and arrows only show in the gaps.
 - The four pages load `styles.css?v=7.1` and `lang.js?v=7.1`, so browsers fetch the new files instead of a cached copy.
+- Published to GitHub Pages in commit `433b5d5`.
+
+Content update (same day, requested by the student): the AdapterBenchmark tab badge said "Offline tests only · no live run recorded yet". It now reads "First live run on Nov 23 · 285 turns · see the report →" and links to the Benchmark page. In Status, the live AdapterBenchmark run left "Not validated yet" and is now mentioned in the Real API box, with a link to the report; "Real cost and service latency" became "Real cost, and latency beyond one session on one PC", because the run measured latency only in one session on one PC. Stylesheet link bumped to `styles.css?v=7.2`.
 
 The text below describes V6 and still applies.
 

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7.1">
+  <link rel="stylesheet" href="styles.css?v=7.2">
   <link rel="stylesheet" href="benchmark.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23c084fc'/%3E%3Cstop offset='1' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230d0b26'/%3E%3Cpath d='M32 12 50 52H40l-8-19-8 19H14z' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="alternate" hreflang="en" data-lang="en" href="index.html">
@@ -314,7 +314,7 @@
         <p>O benchmark roda adapter × modelo × cenário × repetição. Cada repetição usa um scope e uma session novos, e cada turno é conferido contra uma expectativa concreta.</p>
         <div class="badges">
           <span class="badge">Só com <code>ARANDU_DIAGNOSTICS</code></span>
-          <span class="badge">Só testes offline · nenhuma execução ao vivo registrada ainda</span>
+          <a class="badge badge-ok" href="benchmark.pt-br.html">Primeira execução ao vivo em 23/11 · 285 turnos · ver o relatório →</a>
         </div>
       </div>
 
@@ -585,7 +585,7 @@
         </div>
         <div class="live-check">
           <b>API real</b>
-          <span>Gemini e Groq jogados e testados pelo aluno.</span>
+          <span>Gemini e Groq jogados e testados pelo aluno. O AdapterBenchmark rodou ao vivo em 23/11: 3 modelos, 285 turnos (<a href="benchmark.pt-br.html">relatório</a>).</span>
         </div>
       </div>
       <div class="status-col spot reveal">
@@ -593,9 +593,8 @@
         <p class="st-desc">Pontos em aberto para a etapa de avaliação.</p>
         <ul class="opens">
           <li>Chamadas reais a uma terceira API</li>
-          <li>Uma execução ao vivo do AdapterBenchmark</li>
           <li>Qualidade medida das decisões e dos resumos</li>
-          <li>Custo real e latência do serviço</li>
+          <li>Custo real, e latência além de uma sessão em um PC</li>
           <li>Builds de jogador, IL2CPP, WebGL e dispositivos</li>
           <li>Durabilidade depois de reiniciar</li>
         </ul>

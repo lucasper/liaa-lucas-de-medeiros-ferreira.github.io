@@ -878,3 +878,8 @@ html.is-leaving { pointer-events: none; }
   .next-done { align-items: flex-start; }
   .next-done em { display: none; }
 }
+
+/* V7 · AdapterBenchmark badge links to the report */
+a.badge { text-decoration: none; transition: transform .35s var(--ease), box-shadow .35s; }
+a.badge:hover { transform: translateY(-2px); box-shadow: 0 0 26px rgba(94, 234, 212, .3); }
+.live-check a { color: var(--blue); }
